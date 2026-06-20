@@ -8,6 +8,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
 import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
 import pcgLogo from "../assets/PCGlogo.png";
+import defaultWallpaper from "../assets/wall2.png";
 
 function PublicCardPage() {
   const { cardId } = useParams();
@@ -71,7 +72,8 @@ function PublicCardPage() {
       alert("Could not save card image. Please try again.");
     }
   };
-  const hasBackground = Boolean(card.backgroundUrl);
+  const backgroundImage = card.backgroundUrl || defaultWallpaper;
+  const hasBackground = true;
 
   const contactRows = [
     card.phone && { key: "call", label: card.phone, icon: Phone, href: formatPhoneLink(card.phone) },
@@ -97,7 +99,7 @@ function PublicCardPage() {
           style={
             hasBackground
               ? {
-                  backgroundImage: `url(${card.backgroundUrl})`,
+                  backgroundImage: `url(${backgroundImage})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }
