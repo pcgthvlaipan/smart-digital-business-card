@@ -22,7 +22,7 @@ export default {
         border: "#E5E7EB",
       },
       fontFamily: {
-        sans: ["Inter", "\"Noto Sans Thai\"", "system-ui", "sans-serif"],
+        sans: ['"Noto Sans Thai"', "Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 4px 20px -2px rgba(15, 23, 42, 0.08)",
