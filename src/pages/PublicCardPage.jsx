@@ -150,7 +150,7 @@ function PublicCardPage() {
             </>
           )}
           {/* Light header zone with logo */}
-          <div className={`relative pt-5 px-5 overflow-hidden ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
+          <div className={`relative pt-7 px-5 overflow-hidden ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
             {!hasBackground && (
               <svg className="absolute inset-0 w-full h-[90px] opacity-50" preserveAspectRatio="none">
                 <defs>
@@ -161,7 +161,7 @@ function PublicCardPage() {
                 <rect width="100%" height="100%" fill="url(#dots)" />
               </svg>
             )}
-            <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3" />
+            <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
           </div>
 
           {/* Photo overlapping light zone and navy block */}
@@ -188,18 +188,18 @@ function PublicCardPage() {
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center leading-loose pb-3">{card.fullName}</h1>
+            <h1 className="relative text-lg font-semibold text-white text-center leading-loose pb-4">{card.fullName}</h1>
             {card.nickname && (
-              <p className="relative text-xs text-white/65 text-center mt-0.5 mb-1.5 pb-2">"{card.nickname}"</p>
+              <p className="relative text-xs text-white/65 text-center mt-0.5 mb-1.5 pb-3">"{card.nickname}"</p>
             )}
-            <p className="relative text-[13px] font-semibold text-center leading-loose pb-2" style={{ color: "#D9A441" }}>
+            <p className="relative text-[13px] font-semibold text-center leading-loose pb-3" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
             {card.department && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5 pb-2">{card.department}</p>
+              <p className="relative text-xs text-white/70 text-center mt-0.5 pb-3">{card.department}</p>
             )}
             {card.company && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4 pb-2">{card.company}</p>
+              <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4 pb-3">{card.company}</p>
             )}
 
             {card.bio && (
@@ -219,7 +219,7 @@ function PublicCardPage() {
                     className="flex items-center gap-2.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white truncate pb-2">{row.label}</span>
+                    <span className="text-[13px] text-white truncate pb-3">{row.label}</span>
                   </a>
                 ))}
 
