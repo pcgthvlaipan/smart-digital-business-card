@@ -1,3 +1,15 @@
+function foldLine(line, maxLength = 75) {
+  if (line.length <= maxLength) return line;
+  const chunks = [];
+  let i = 0;
+  while (i < line.length) {
+    const chunkSize = i === 0 ? maxLength : maxLength - 1;
+    chunks.push(line.slice(i, i + chunkSize));
+    i += chunkSize;
+  }
+  return chunks.map((chunk, idx) => (idx === 0 ? chunk : " " + chunk)).join("\r\n");
+}
+
 export function createVCard(card) {
   const lines = [
     "BEGIN:VCARD",
@@ -15,7 +27,8 @@ export function createVCard(card) {
     if (match) {
       const imageType = match[1].toUpperCase();
       const base64Data = match[2];
-      lines.push(`PHOTO;ENCODING=b;TYPE=${imageType}:${base64Data}`);
+      const photoLine = `PHOTO;ENCODING=b;TYPE=${imageType}:${base64Data}`;
+      lines.push(foldLine(photoLine));
     }
   }
 
