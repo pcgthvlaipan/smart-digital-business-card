@@ -62,7 +62,30 @@ function PublicCardPage() {
   const saveCardAsImage = async () => {
     if (!cardRef.current) return;
     try {
-      const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
+      // Small delay to ensure all images/canvas elements are fully painted
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const dataUrl = await toPng(cardRef.current, {
+        quality: 0.95,
+        pixelRatio: 2,
+        cacheBust: true,
+        skipAutoScale: true,
+      });
+
+      // Try native share sheet first (iOS/Android: saves to Photos via "Save Image")
+      if (navigator.canShare) {
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const fileName = `${card.fullName || "business-card"}.png`;
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+          return;
+        }
+      }
+
+      // Fallback for browsers without share support (most desktop browsers)
       const link = document.createElement("a");
       link.download = `${card.fullName || "business-card"}.png`;
       link.href = dataUrl;
