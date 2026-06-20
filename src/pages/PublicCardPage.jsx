@@ -12,6 +12,7 @@ import pcgLogo from "../assets/PCGlogo.png";
 function PublicCardPage() {
   const { cardId } = useParams();
   const [card, setCard] = useState(null);
+  const cardRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -56,7 +57,6 @@ function PublicCardPage() {
   }
 
   const publicUrl = window.location.href;
-  const cardRef = useRef(null);
 
   const saveCardAsImage = async () => {
     if (!cardRef.current) return;
