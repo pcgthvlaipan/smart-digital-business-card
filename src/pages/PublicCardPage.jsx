@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
-import { Phone, Mail, Globe, MapPin, Copy, Download } from "lucide-react";
+import { Phone, Mail, Globe, MapPin, Copy, Download, Image as ImageIcon } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
 import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
@@ -55,6 +56,21 @@ function PublicCardPage() {
   }
 
   const publicUrl = window.location.href;
+  const cardRef = useRef(null);
+
+  const saveCardAsImage = async () => {
+    if (!cardRef.current) return;
+    try {
+      const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = `${card.fullName || "business-card"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Failed to save card as image:", err);
+      alert("Could not save card image. Please try again.");
+    }
+  };
   const hasBackground = Boolean(card.backgroundUrl);
 
   const contactRows = [
@@ -76,6 +92,7 @@ function PublicCardPage() {
     <div className="min-h-screen py-10 px-4 bg-[#F4F2ED]">
       <div className="max-w-[360px] mx-auto">
         <div
+          ref={cardRef}
           className="relative bg-white rounded-[20px] shadow-card overflow-hidden"
           style={
             hasBackground
@@ -215,6 +232,16 @@ function PublicCardPage() {
               Save Contact
             </button>
           </div>
+        </div>
+
+        <div className="px-0 mt-3">
+          <button
+            onClick={saveCardAsImage}
+            className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg border border-border bg-white text-navy hover:bg-surface transition-colors"
+          >
+            <ImageIcon className="w-4 h-4" />
+            Save Card as Image
+          </button>
         </div>
 
         <p className="text-center text-xs text-muted/70 mt-5">Powered by Smart Digital Card</p>
