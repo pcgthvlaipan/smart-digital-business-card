@@ -100,8 +100,7 @@ function PublicCardPage() {
             hasBackground
               ? {
                   backgroundImage: `url(${backgroundImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
+                  backgroundSize: "100% 100%",
                 }
               : undefined
           }
