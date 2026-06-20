@@ -128,17 +128,17 @@ function PublicCardPage() {
         <div
           ref={cardRef}
           className="relative bg-white rounded-[20px] shadow-card overflow-hidden"
-          style={
-            hasBackground
-              ? {
-                  backgroundImage: `url(${backgroundImage})`,
-                  backgroundSize: "100% 100%",
-                }
-              : undefined
-          }
         >
           {hasBackground && (
-            <div className="absolute inset-0 bg-black/12 pointer-events-none z-0" />
+            <>
+              <img
+                src={backgroundImage}
+                alt=""
+                crossOrigin="anonymous"
+                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+              />
+              <div className="absolute inset-0 bg-black/12 pointer-events-none z-0" />
+            </>
           )}
           {/* Light header zone with logo */}
           <div className={`relative pt-5 px-5 overflow-hidden ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
