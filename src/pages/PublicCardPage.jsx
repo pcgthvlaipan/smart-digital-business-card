@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import html2canvas from "html2canvas";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
@@ -74,12 +74,12 @@ function PublicCardPage() {
       // Extra delay to ensure browser has fully painted everything
       await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 0.95,
-        pixelRatio: 2,
-        cacheBust: true,
-        skipAutoScale: true,
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
       });
+      const dataUrl = canvas.toDataURL("image/png", 0.95);
 
       // Try native share sheet first (iOS/Android: saves to Photos via "Save Image")
       if (navigator.canShare) {
