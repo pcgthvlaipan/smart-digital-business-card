@@ -184,18 +184,18 @@ function PublicCardPage() {
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center">{card.fullName}</h1>
+            <h1 className="relative text-lg font-semibold text-white text-center leading-relaxed pb-1">{card.fullName}</h1>
             {card.nickname && (
-              <p className="relative text-xs text-white/65 text-center mt-0.5 mb-1.5">"{card.nickname}"</p>
+              <p className="relative text-xs text-white/65 text-center mt-0.5 mb-1.5 pb-0.5">"{card.nickname}"</p>
             )}
-            <p className="relative text-[13px] font-semibold text-center" style={{ color: "#D9A441" }}>
+            <p className="relative text-[13px] font-semibold text-center leading-relaxed pb-0.5" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
             {card.department && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5">{card.department}</p>
+              <p className="relative text-xs text-white/70 text-center mt-0.5 pb-0.5">{card.department}</p>
             )}
             {card.company && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4">{card.company}</p>
+              <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4 pb-0.5">{card.company}</p>
             )}
 
             {card.bio && (
@@ -215,7 +215,7 @@ function PublicCardPage() {
                     className="flex items-center gap-2.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white truncate">{row.label}</span>
+                    <span className="text-[13px] text-white truncate pb-0.5">{row.label}</span>
                   </a>
                 ))}
 
