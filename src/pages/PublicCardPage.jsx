@@ -154,6 +154,9 @@ function PublicCardPage() {
             <p className="relative text-[13px] font-semibold text-center" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
+            {card.department && (
+              <p className="relative text-xs text-white/70 text-center mt-0.5">{card.department}</p>
+            )}
             {card.company && (
               <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4">{card.company}</p>
             )}
