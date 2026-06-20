@@ -13,12 +13,13 @@ function foldLine(line, maxLength = 75) {
 export function createVCard(card) {
   const lines = [
     "BEGIN:VCARD",
-    "VERSION:3.0",
+    "VERSION:2.1",
+    `N:${card.fullName || ""};;;;`,
     `FN:${card.fullName || ""}`,
     `ORG:${card.company || ""}`,
     `TITLE:${card.jobTitle || ""}`,
-    card.phone ? `TEL;TYPE=CELL:${card.phone}` : "",
-    card.email ? `EMAIL:${card.email}` : "",
+    card.phone ? `TEL;CELL:${card.phone}` : "",
+    card.email ? `EMAIL;INTERNET:${card.email}` : "",
     card.website ? `URL:${card.website}` : "",
   ];
 
@@ -27,14 +28,17 @@ export function createVCard(card) {
     if (match) {
       const imageType = match[1].toUpperCase();
       const base64Data = match[2];
-      const photoLine = `PHOTO;ENCODING=b;TYPE=${imageType}:${base64Data}`;
+      const photoLine = `PHOTO;ENCODING=BASE64;TYPE=${imageType}:${base64Data}`;
       lines.push(foldLine(photoLine));
+      lines.push("");
     }
   }
 
   lines.push("END:VCARD");
 
-  const vcardContent = lines.filter(Boolean).join("\r\n");
+  const vcardContent = lines
+    .filter((l, i) => l !== "" || i === lines.length - 2)
+    .join("\r\n");
   const blob = new Blob([vcardContent], { type: "text/vcard" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
