@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { Phone, Mail, Globe, MapPin, Copy, Download, Image as ImageIcon } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
 import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
 import pcgLogo from "../assets/PCGlogo.png";
@@ -62,8 +62,17 @@ function PublicCardPage() {
   const saveCardAsImage = async () => {
     if (!cardRef.current) return;
     try {
-      // Small delay to ensure all images/canvas elements are fully painted
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Preload the background image fully before capture
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = resolve;
+        img.onerror = resolve;
+        img.src = backgroundImage;
+      });
+
+      // Extra delay to ensure browser has fully painted everything
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       const dataUrl = await toPng(cardRef.current, {
         quality: 0.95,
@@ -244,7 +253,7 @@ function PublicCardPage() {
             )}
 
             <div className="absolute bottom-3.5 right-3.5 bg-white rounded-xl p-2 shadow-lg">
-              <QRCodeCanvas value={publicUrl} size={56} />
+              <QRCodeSVG value={publicUrl} size={56} />
             </div>
           </div>
 
