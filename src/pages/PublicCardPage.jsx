@@ -71,6 +71,11 @@ function PublicCardPage() {
         img.src = backgroundImage;
       });
 
+      // Ensure all custom fonts are fully loaded before measuring/rendering text
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
       // Extra delay to ensure browser has fully painted everything
       await new Promise((resolve) => setTimeout(resolve, 300));
 
