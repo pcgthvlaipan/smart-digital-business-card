@@ -189,18 +189,14 @@ function PublicCardPage() {
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center leading-loose pb-4">{card.fullName}</h1>
-            {card.nickname && (
-              <p className="relative text-xs text-white/65 text-center mt-0.5 mb-1.5 pb-3">"{card.nickname}"</p>
-            )}
-            <p className="relative text-[13px] font-semibold text-center leading-loose pb-3" style={{ color: "#D9A441" }}>
+            <h1 className="relative text-lg font-semibold text-white text-center leading-loose pb-4">
+              {card.fullName}{card.nickname && ` (${card.nickname})`}
+            </h1>
+            <p className="relative text-[17px] font-semibold text-center leading-loose pb-3" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
-            {card.department && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5 pb-3">{card.department}</p>
-            )}
             {card.company && (
-              <p className="relative text-xs text-white/70 text-center mt-0.5 mb-4 pb-3">{card.company}</p>
+              <p className="relative text-[16px] text-white/70 text-center mt-0.5 mb-4 pb-3">{card.company}</p>
             )}
 
             {card.bio && (
@@ -220,7 +216,7 @@ function PublicCardPage() {
                     className="flex items-center gap-2.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white truncate pb-3">{row.label}</span>
+                    <span className="text-[13px] text-white truncate">{row.label}</span>
                   </a>
                 ))}
 
