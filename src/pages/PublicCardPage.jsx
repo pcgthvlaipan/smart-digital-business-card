@@ -219,9 +219,9 @@ function PublicCardPage() {
                     href={row.href}
                     target={row.external ? "_blank" : undefined}
                     rel={row.external ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-2.5"
+                    style={{ position: "relative", display: "block", paddingLeft: "25px", minHeight: "20px" }}
                   >
-                    <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
+                    <row.icon className="w-[15px] h-[15px]" style={{ color: "#D9A441", position: "absolute", left: 0, top: "3px" }} />
                     <span className="text-[13px] text-white" style={{ whiteSpace: "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
