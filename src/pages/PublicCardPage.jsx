@@ -90,21 +90,27 @@ function PublicCardPage() {
         windowHeight: document.documentElement.scrollHeight,
       });
       const dataUrl = canvas.toDataURL("image/png", 0.95);
-
-      // Try native share sheet first (iOS/Android: saves to Photos via "Save Image")
-      if (navigator.canShare) {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      // iOS Safari doesn't reliably support the <a download> attribute, so use
+      // the native share sheet there. Android downloads directly to Downloads
+      // instead, since its share sheet doesn't reliably offer a gallery target.
+      if (isIOS && navigator.canShare) {
         const res = await fetch(dataUrl);
         const blob = await res.blob();
         const fileName = `${card.fullName || "business-card"}.png`;
         const file = new File([blob], fileName, { type: "image/png" });
-
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
+          try {
+            await navigator.share({ files: [file] });
+          } catch (shareErr) {
+            if (shareErr.name !== "AbortError") {
+              throw shareErr;
+            }
+          }
           return;
         }
       }
-
-      // Fallback for browsers without share support (most desktop browsers)
+      // Android and desktop: direct download
       const link = document.createElement("a");
       link.download = `${card.fullName || "business-card"}.png`;
       link.href = dataUrl;
@@ -189,14 +195,14 @@ function PublicCardPage() {
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center mb-[2px]">
+            <h1 className="relative text-lg font-semibold text-white text-center pb-[2px]">
               {card.fullName}{card.nickname && ` (${card.nickname})`}
             </h1>
-            <p className="relative text-[17px] font-semibold text-center mb-1" style={{ color: "#D9A441" }}>
+            <p className="relative text-[17px] font-semibold text-center pb-1" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
             {card.company && (
-              <p className="relative text-[16px] text-white/70 text-center mb-4">{card.company}</p>
+              <p className="relative text-[16px] text-white/70 text-center pb-4">{card.company}</p>
             )}
 
             {card.bio && (
@@ -213,10 +219,10 @@ function PublicCardPage() {
                     href={row.href}
                     target={row.external ? "_blank" : undefined}
                     rel={row.external ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-2.5"
+                    className="flex items-center gap-2.5 py-0.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white truncate">{row.label}</span>
+                    <span className="text-[13px] text-white truncate leading-tight">{row.label}</span>
                   </a>
                 ))}
 
