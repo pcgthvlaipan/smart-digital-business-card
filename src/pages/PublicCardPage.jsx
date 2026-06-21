@@ -222,7 +222,7 @@ function PublicCardPage() {
                     className="flex items-center gap-2.5 py-0.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white truncate leading-tight">{row.label}</span>
+                    <span className="text-[13px] text-white truncate">{row.label}</span>
                   </a>
                 ))}
 
