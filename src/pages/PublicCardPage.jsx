@@ -219,11 +219,12 @@ function PublicCardPage() {
                     href={row.href}
                     target={row.external ? "_blank" : undefined}
                     rel={row.external ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-2.5"
-                    style={{ height: "22px" }}
+                    style={{ display: "table", width: "100%", height: "22px" }}
                   >
-                    <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white" style={{ lineHeight: "20px", whiteSpace: "nowrap", overflow: "visible" }}>{row.label}</span>
+                    <span style={{ display: "table-cell", verticalAlign: "middle", width: "25px" }}>
+                      <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
+                    </span>
+                    <span className="text-[13px] text-white" style={{ display: "table-cell", verticalAlign: "middle", lineHeight: "20px", whiteSpace: "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
 
