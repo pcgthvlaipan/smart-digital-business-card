@@ -88,7 +88,6 @@ function PublicCardPage() {
         scrollY: -window.scrollY,
         windowWidth: document.documentElement.scrollWidth,
         windowHeight: document.documentElement.scrollHeight,
-        foreignObjectRendering: true,
       });
       const dataUrl = canvas.toDataURL("image/png", 0.95);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
