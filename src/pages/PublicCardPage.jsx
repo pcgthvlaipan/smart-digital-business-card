@@ -182,21 +182,21 @@ function PublicCardPage() {
 
           {/* Navy block: name, title, contact rows, socials */}
           <div
-            className="relative px-5 pt-[73px] pb-5 overflow-hidden"
+            className="relative px-5 pt-[88px] pb-5 overflow-hidden"
             style={hasBackground ? undefined : { background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}
           >
             <svg className="absolute -top-8 -right-8 w-[100px] h-[100px] opacity-[0.12]" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center leading-loose pb-4">
+            <h1 className="relative text-lg font-semibold text-white text-center mb-[2px]">
               {card.fullName}{card.nickname && ` (${card.nickname})`}
             </h1>
-            <p className="relative text-[17px] font-semibold text-center leading-loose pb-3" style={{ color: "#D9A441" }}>
+            <p className="relative text-[17px] font-semibold text-center mb-1" style={{ color: "#D9A441" }}>
               {card.jobTitle}
             </p>
             {card.company && (
-              <p className="relative text-[16px] text-white/70 text-center mt-0.5 mb-4 pb-3">{card.company}</p>
+              <p className="relative text-[16px] text-white/70 text-center mb-4">{card.company}</p>
             )}
 
             {card.bio && (
