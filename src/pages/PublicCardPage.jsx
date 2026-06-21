@@ -7,6 +7,7 @@ import { Phone, Mail, Globe, MapPin, Copy, Download, Image as ImageIcon } from "
 import { QRCodeSVG } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
 import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
+import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIcons";
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
 
@@ -239,20 +240,16 @@ function PublicCardPage() {
                         style={{ background: s.bg }}
                       >
                         {s.type === "whatsapp" && (
-                          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white">
-                            <path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.4.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.5 12.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.6.1-.2.3-.7.9-.9 1-.2.2-.3.2-.6.1-.9-.4-1.8-1-2.6-1.8-.7-.7-1.3-1.6-1.7-2.4-.1-.2 0-.4.1-.5.2-.2.4-.4.5-.6.1-.2.1-.4 0-.6-.1-.2-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.7.7-1 1.5-1 2.4.1 1.1.6 2.2 1.4 3.2 1.4 1.9 3.1 3.2 5.2 4 .5.2 1 .3 1.6.3.7 0 1.4-.3 1.9-.8.4-.4.6-.9.7-1.5 0-.2 0-.4-.2-.5z"/>
-                          </svg>
+                          <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
                         )}
                         {s.type === "line" && (
-                          <span className="text-[9px] font-semibold text-white">LINE</span>
+                          <LineIcon className="w-3.5 h-3.5 fill-white" />
                         )}
                       </a>
                     ) : (
                       <button onClick={copyWeChat} type="button" className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: s.bg }}>
                         {s.type === "wechat" && (
-                          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white">
-                            <path d="M9 11.5c-.5 0-1-.4-1-1s.5-1 1-1 1 .4 1 1-.5 1-1 1zm5 0c-.5 0-1-.4-1-1s.5-1 1-1 1 .4 1 1-.5 1-1 1zM8.5 3C4.4 3 1 5.9 1 9.5c0 2 1.1 3.8 2.8 5l-.7 2.1 2.4-1.2c.7.2 1.3.3 2 .3h.2c-.1-.4-.2-.8-.2-1.2 0-3.5 3.4-6.3 7.7-6.3.3 0 .6 0 .9.1C15.5 5.2 12.3 3 8.5 3zm9.7 6.1c-3.7 0-6.7 2.5-6.7 5.6s3 5.6 6.7 5.6c.6 0 1.2-.1 1.7-.2l2 1-.6-1.8c1.4-1 2.3-2.4 2.3-4.1 0-3.1-3-5.1-5.4-5.1z"/>
-                          </svg>
+                          <WeChatIcon className="w-3.5 h-3.5 fill-white" />
                         )}
                       </button>
                     )}
