@@ -88,6 +88,7 @@ function PublicCardPage() {
         scrollY: -window.scrollY,
         windowWidth: document.documentElement.scrollWidth,
         windowHeight: document.documentElement.scrollHeight,
+        foreignObjectRendering: true,
       });
       const dataUrl = canvas.toDataURL("image/png", 0.95);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -219,12 +220,10 @@ function PublicCardPage() {
                     href={row.href}
                     target={row.external ? "_blank" : undefined}
                     rel={row.external ? "noopener noreferrer" : undefined}
-                    style={{ display: "table", width: "100%", height: "22px" }}
+                    className="flex items-center gap-2.5"
                   >
-                    <span style={{ display: "table-cell", verticalAlign: "middle", width: "25px" }}>
-                      <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    </span>
-                    <span className="text-[13px] text-white" style={{ display: "table-cell", verticalAlign: "middle", lineHeight: "20px", whiteSpace: "nowrap" }}>{row.label}</span>
+                    <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
+                    <span className="text-[13px] text-white" style={{ whiteSpace: "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
 
