@@ -169,8 +169,8 @@ function PublicCardPage() {
               </svg>
             )}
             <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
-            <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg">
-              <QRCodeSVG value={publicUrl} size={56} className="block" />
+            <div className="absolute top-3 right-3">
+              <QRCodeSVG value={publicUrl} size={56} className="block" bgColor="transparent" />
             </div>
           </div>
 
