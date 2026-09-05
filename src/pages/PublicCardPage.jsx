@@ -403,7 +403,7 @@ function PublicCardPage() {
                       className="flex items-center gap-2"
                     >
                       <action.icon className="w-3.5 h-3.5 shrink-0" style={{ color: action.bg }} />
-                      <span className="text-[13px] font-medium text-slate-700 break-all">{action.label}</span>
+                      <span className="text-[14px] font-medium text-slate-700 break-all">{action.label}</span>
                     </a>
                   ))}
                 </div>
@@ -413,7 +413,7 @@ function PublicCardPage() {
             {card.address && (
               <div className="flex items-start gap-2 pt-1.5">
                 <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#7C3AED" }} />
-                <span className="text-xs text-slate-500 leading-snug">{card.address}</span>
+                <span className="text-[13px] text-slate-500 leading-snug">{card.address}</span>
               </div>
             )}
 
@@ -421,17 +421,13 @@ function PublicCardPage() {
               <div className="pt-4">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E7490" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" /></svg>
-                  <span className="text-xs font-bold text-navy">About Me</span>
+                  <span className="text-[13px] font-bold text-navy">About Me</span>
                 </div>
-                <p className="text-[11.5px] text-slate-500 leading-relaxed">{displayBio}</p>
+                <p className="text-[12.5px] text-slate-500 leading-relaxed">{displayBio}</p>
               </div>
             )}
 
             <div className="pt-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E7490" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" /></svg>
-                <span className="text-xs font-bold text-navy">Connect</span>
-              </div>
               {/* Social icons and the QR code share one row, wrapping onto a
                   new line (rather than overlapping) if enough icons are added
                   that they'd otherwise crowd the QR code out. ml-auto keeps
@@ -479,7 +475,7 @@ function PublicCardPage() {
         {/* Actions: save contact, save as image - grouped together, in the
             same card section as the face above (just a border seam between
             them), directly under the QR code on the card. */}
-        <div className="relative z-10 bg-[#16A34A] p-5 flex flex-col items-center gap-3">
+        <div className="relative z-10 bg-[#F1F5F9] p-5 flex flex-col items-center gap-3">
           <div className="w-full flex gap-2.5">
             <button
               onClick={() =>
@@ -497,7 +493,8 @@ function PublicCardPage() {
 
             <button
               onClick={saveCardAsImage}
-              className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full border border-border bg-surface text-navy hover:bg-border/30 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full text-white transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(90deg,#F97316,#EA580C)" }}
             >
               <ImageIcon className="w-4 h-4 shrink-0" />
               Save Image
