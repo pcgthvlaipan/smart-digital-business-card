@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseClient";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 
@@ -26,10 +25,14 @@ function LoginPage() {
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, form.email, form.password);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
+      if (signInError) throw signInError;
       navigate("/dashboard");
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapSupabaseError(err.message));
     } finally {
       setLoading(false);
     }
@@ -86,17 +89,15 @@ function LoginPage() {
   );
 }
 
-function mapFirebaseError(code) {
-  switch (code) {
-    case "auth/invalid-email":
-      return "Please enter a valid email address.";
-    case "auth/user-not-found":
-    case "auth/wrong-password":
-    case "auth/invalid-credential":
-      return "Incorrect email or password.";
-    default:
-      return "Something went wrong. Please try again.";
+function mapSupabaseError(message) {
+  if (!message) return "Something went wrong. Please try again.";
+  if (message.includes("Invalid login credentials")) {
+    return "Incorrect email or password.";
   }
+  if (message.includes("Email not confirmed")) {
+    return "Please confirm your email before logging in.";
+  }
+  return "Something went wrong. Please try again.";
 }
 
 export default LoginPage;

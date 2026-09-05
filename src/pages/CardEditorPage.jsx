@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../firebase/AuthContext";
 import DashboardLayout from "../components/DashboardLayout";
 import InputField from "../components/InputField";
@@ -9,8 +8,6 @@ import Button from "../components/Button";
 import ImageUploader from "../components/ImageUploader";
 import { compressImage } from "../utils/compressImage";
 import { isValidUrl, isValidEmail } from "../utils/formatLinks";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
 
 const emptyCard = {
   fullName: "",
@@ -37,6 +34,72 @@ const emptyCard = {
   googleMapsUrl: "",
 };
 
+function dbRowToForm(row) {
+  return {
+    fullName: row.full_name || "",
+    nickname: row.nickname || "",
+    jobTitle: row.job_title || "",
+    company: row.company || "",
+    department: row.department || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    website: row.website || "",
+    address: row.address || "",
+    bio: row.bio || "",
+    photoUrl: row.photo_url || "",
+    backgroundUrl: row.background_url || "",
+    lineId: row.line_id || "",
+    lineUrl: row.line_url || "",
+    wechatId: row.wechat_id || "",
+    whatsappNumber: row.whatsapp_number || "",
+    facebookUrl: row.facebook_url || "",
+    instagramUrl: row.instagram_url || "",
+    linkedinUrl: row.linkedin_url || "",
+    tiktokUrl: row.tiktok_url || "",
+    youtubeUrl: row.youtube_url || "",
+    googleMapsUrl: row.google_maps_url || "",
+  };
+}
+
+function formToDbRow(form, userId) {
+  return {
+    user_id: userId,
+    full_name: form.fullName || null,
+    nickname: form.nickname || null,
+    job_title: form.jobTitle || null,
+    company: form.company || null,
+    department: form.department || null,
+    phone: form.phone || null,
+    email: form.email || null,
+    website: form.website || null,
+    address: form.address || null,
+    bio: form.bio || null,
+    photo_url: form.photoUrl || null,
+    background_url: form.backgroundUrl || null,
+    line_id: form.lineId || null,
+    line_url: form.lineUrl || null,
+    wechat_id: form.wechatId || null,
+    whatsapp_number: form.whatsappNumber || null,
+    facebook_url: form.facebookUrl || null,
+    instagram_url: form.instagramUrl || null,
+    linkedin_url: form.linkedinUrl || null,
+    tiktok_url: form.tiktokUrl || null,
+    youtube_url: form.youtubeUrl || null,
+    google_maps_url: form.googleMapsUrl || null,
+  };
+}
+
+async function uploadToBucket(bucket, userId, blob) {
+  const path = `${userId}/${bucket === "avatars" ? "photo" : "background"}-${Date.now()}.jpg`;
+  const { error } = await supabase.storage.from(bucket).upload(path, blob, {
+    contentType: "image/jpeg",
+    upsert: true,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 function CardEditorPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -56,9 +119,17 @@ function CardEditorPage() {
   useEffect(() => {
     const loadCard = async () => {
       if (!cardId) return;
-      const snap = await getDoc(doc(db, "businessCards", cardId));
-      if (snap.exists()) {
-        setForm({ ...emptyCard, ...snap.data() });
+      const { data, error: loadError } = await supabase
+        .from("business_cards")
+        .select("*")
+        .eq("id", cardId)
+        .single();
+      if (loadError) {
+        console.error("Error loading card:", loadError);
+        return;
+      }
+      if (data) {
+        setForm(dbRowToForm(data));
       }
     };
     loadCard();
@@ -109,30 +180,34 @@ function CardEditorPage() {
 
     setSaving(true);
     try {
-      const id = cardId || user.uid;
       let photoUrl = form.photoUrl;
-
       if (photoFile) {
-        photoUrl = await compressImage(photoFile, 300, 0.7);
+        const compressedBlob = await compressImage(photoFile, 300, 0.7);
+        photoUrl = await uploadToBucket("avatars", user.id, compressedBlob);
       }
 
       let backgroundUrl = form.backgroundUrl;
       if (backgroundFile) {
-        backgroundUrl = await compressImage(backgroundFile, 800, 0.7);
+        const compressedBlob = await compressImage(backgroundFile, 800, 0.7);
+        backgroundUrl = await uploadToBucket("backgrounds", user.id, compressedBlob);
       }
 
-      await setDoc(
-        doc(db, "businessCards", id),
-        {
-          ...form,
-          photoUrl,
-          backgroundUrl,
-          userId: user.uid,
-          updatedAt: serverTimestamp(),
-          ...(cardId ? {} : { createdAt: serverTimestamp() }),
-        },
-        { merge: true }
-      );
+      const finalForm = { ...form, photoUrl, backgroundUrl };
+      const dbRow = formToDbRow(finalForm, user.id);
+
+      if (cardId) {
+        const { error: updateError } = await supabase
+          .from("business_cards")
+          .update(dbRow)
+          .eq("id", cardId);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("business_cards")
+          .insert(dbRow);
+        if (insertError) throw insertError;
+      }
+
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -142,7 +217,7 @@ function CardEditorPage() {
     }
   };
 
-  const handleLogout = () => signOut(auth);
+  const handleLogout = () => supabase.auth.signOut();
 
   if (loading) {
     return (

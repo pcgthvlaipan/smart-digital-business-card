@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../firebase/AuthContext";
 import DashboardLayout from "../components/DashboardLayout";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
 import QRCodeBox from "../components/QRCodeBox";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
 
 function DashboardPage() {
   const { user, loading } = useAuth();
@@ -27,14 +24,15 @@ function DashboardPage() {
       if (!user) return;
       setFetching(true);
       try {
-        const q = query(collection(db, "businessCards"), where("userId", "==", user.uid));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          const docSnap = snap.docs[0];
-          setCard({ id: docSnap.id, ...docSnap.data() });
-        } else {
-          setCard(null);
-        }
+        const { data, error } = await supabase
+          .from("business_cards")
+          .select("*")
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+        setCard(data);
       } catch (err) {
         console.error("Error fetching card:", err);
       } finally {
@@ -48,11 +46,15 @@ function DashboardPage() {
     if (!card) return;
     const confirmed = window.confirm("Delete your business card? This cannot be undone.");
     if (!confirmed) return;
-    await deleteDoc(doc(db, "businessCards", card.id));
+    const { error } = await supabase.from("business_cards").delete().eq("id", card.id);
+    if (error) {
+      console.error("Error deleting card:", error);
+      return;
+    }
     setCard(null);
   };
 
-  const handleLogout = () => signOut(auth);
+  const handleLogout = () => supabase.auth.signOut();
 
   const publicUrl = card ? `${window.location.origin}/card/${card.id}` : "";
 
@@ -115,16 +117,6 @@ function DashboardPage() {
                 Preview Public Page
               </Button>
             </div>
-
-            <QRCodeBox url={publicUrl} />
-
-            <Button
-              variant="outline"
-              className="border-red-200 text-red-500 hover:bg-red-50"
-              onClick={handleDelete}
-            >
-              Delete Card
-            </Button>
           </div>
         </div>
       )}

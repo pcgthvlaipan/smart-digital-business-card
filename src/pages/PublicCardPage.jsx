@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseClient";
 import { Phone, Mail, Globe, MapPin, Copy, Download, Image as ImageIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
@@ -10,6 +9,34 @@ import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
 import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIcons";
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
+
+function dbRowToCard(row) {
+  return {
+    id: row.id,
+    fullName: row.full_name || "",
+    nickname: row.nickname || "",
+    jobTitle: row.job_title || "",
+    department: row.department || "",
+    company: row.company || "",
+    phone: row.phone || "",
+    email: row.email || "",
+    website: row.website || "",
+    address: row.address || "",
+    bio: row.bio || "",
+    photoUrl: row.photo_url || "",
+    backgroundUrl: row.background_url || "",
+    lineId: row.line_id || "",
+    lineUrl: row.line_url || "",
+    wechatId: row.wechat_id || "",
+    whatsappNumber: row.whatsapp_number || "",
+    facebookUrl: row.facebook_url || "",
+    instagramUrl: row.instagram_url || "",
+    linkedinUrl: row.linkedin_url || "",
+    tiktokUrl: row.tiktok_url || "",
+    youtubeUrl: row.youtube_url || "",
+    googleMapsUrl: row.google_maps_url || "",
+  };
+}
 
 function PublicCardPage() {
   const { cardId } = useParams();
@@ -21,11 +48,16 @@ function PublicCardPage() {
   useEffect(() => {
     const fetchCard = async () => {
       try {
-        const snap = await getDoc(doc(db, "businessCards", cardId));
-        if (snap.exists()) {
-          setCard({ id: snap.id, ...snap.data() });
-        } else {
+        const { data, error } = await supabase
+          .from("business_cards")
+          .select("*")
+          .eq("id", cardId)
+          .single();
+
+        if (error || !data) {
           setNotFound(true);
+        } else {
+          setCard(dbRowToCard(data));
         }
       } catch (err) {
         console.error(err);

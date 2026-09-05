@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseClient";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 
@@ -34,10 +33,14 @@ function RegisterPage() {
 
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, form.email, form.password);
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
+      if (signUpError) throw signUpError;
       navigate("/dashboard");
     } catch (err) {
-      setError(mapFirebaseError(err.code));
+      setError(mapSupabaseError(err.message));
     } finally {
       setLoading(false);
     }
@@ -45,7 +48,6 @@ function RegisterPage() {
 
   return (
     <div className="min-h-screen flex bg-surface">
-      {/* Left: Branding panel */}
       <div className="hidden md:flex w-1/2 bg-navy text-white flex-col justify-center px-16">
         <h1 className="text-4xl font-bold mb-4">Smart Digital Business Card</h1>
         <p className="text-lg text-white/70 max-w-md">
@@ -53,7 +55,6 @@ function RegisterPage() {
         </p>
       </div>
 
-      {/* Right: Form panel */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
           <h2 className="text-2xl font-bold text-navy mb-1">Create your account</h2>
@@ -104,17 +105,15 @@ function RegisterPage() {
   );
 }
 
-function mapFirebaseError(code) {
-  switch (code) {
-    case "auth/email-already-in-use":
-      return "An account with this email already exists.";
-    case "auth/invalid-email":
-      return "Please enter a valid email address.";
-    case "auth/weak-password":
-      return "Password is too weak.";
-    default:
-      return "Something went wrong. Please try again.";
+function mapSupabaseError(message) {
+  if (!message) return "Something went wrong. Please try again.";
+  if (message.includes("already registered")) {
+    return "An account with this email already exists.";
   }
+  if (message.includes("Password should be")) {
+    return "Password is too weak.";
+  }
+  return "Something went wrong. Please try again.";
 }
 
 export default RegisterPage;
