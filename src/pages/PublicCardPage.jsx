@@ -240,15 +240,16 @@ function PublicCardPage() {
 
   const textColor = isLightBg ? "#0B3D91" : "#FFFFFF";
   const textColorMuted = isLightBg ? "rgba(11,61,145,0.72)" : "rgba(255,255,255,0.7)";
-  const textColorBio = isLightBg ? "rgba(11,61,145,0.8)" : "rgba(255,255,255,0.75)";
 
-  const contactRows = [
-    card.phone && { key: "call", label: card.phone, icon: Phone, href: formatPhoneLink(card.phone) },
-    card.email && { key: "email", label: card.email, icon: Mail, href: formatEmailLink(card.email) },
-    card.email2 && { key: "email2", label: card.email2, icon: Mail, href: formatEmailLink(card.email2) },
-    card.address && { key: "address", label: card.address, icon: MapPin, wrap: true },
-    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), icon: Globe, href: card.website, external: true },
-    card.googleMapsUrl && { key: "map", label: "View location", icon: MapPin, href: card.googleMapsUrl, external: true },
+  // Quick-action icons: everything with a real tappable destination. Address
+  // has no link of its own (it's shown as plain text below the grid instead)
+  // - "Map" already covers "open this in Google Maps" when a link is set.
+  const quickActions = [
+    card.phone && { key: "call", shortLabel: "Call", bg: "#0284C7", icon: Phone, href: formatPhoneLink(card.phone) },
+    card.email && { key: "email", shortLabel: "Email", bg: "#0EA5E9", icon: Mail, href: formatEmailLink(card.email) },
+    card.email2 && { key: "email2", shortLabel: "Email 2", bg: "#38BDF8", icon: Mail, href: formatEmailLink(card.email2) },
+    card.website && { key: "website", shortLabel: "Website", bg: "#0D9488", icon: Globe, href: card.website, external: true },
+    card.googleMapsUrl && { key: "map", shortLabel: "Map", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
 
   const socialIcons = [
@@ -286,52 +287,39 @@ function PublicCardPage() {
               <div className="absolute inset-0 bg-black/12 pointer-events-none z-0" />
             </>
           )}
-          {/* Light header zone with logo */}
-          <div className={`relative pt-7 px-5 overflow-hidden ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
-            {!hasBackground && (
-              <svg className="absolute inset-0 w-full h-[90px] opacity-50" preserveAspectRatio="none">
-                <defs>
-                  <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1.4" fill="#B9BDC2" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#dots)" />
-              </svg>
-            )}
+          {/* Simple header row: logo left, language toggle right. Same flex
+              row means they're always at the same level - no manual offset
+              math needed to keep them aligned. */}
+          <div className="relative flex items-center justify-between px-5 pt-5">
             <img
               src={card.logoUrl || pcgLogo}
               alt={card.logoUrl ? `${card.company || card.fullName} logo` : "Perfect Companion Group"}
-              className="relative h-9 max-w-[160px] w-auto object-contain mb-3 block"
+              className="h-7 max-w-[120px] w-auto object-contain"
             />
+            {hasThai && (
+              <div className="flex bg-white/90 rounded-lg p-1 shadow-lg text-[11px] font-semibold shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={`px-2 py-1 rounded-md transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("th")}
+                  className={`px-2 py-1 rounded-md transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
+                >
+                  TH
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Language toggle, top right, aligned to the same top offset as the
-              logo (the header's own pt-7) so they sit at the same level.
-              Positioned against the outer card, not the header, so it can
-              never get clipped by the header's own (much shorter) content
-              height. */}
-          {hasThai && (
-            <div className="absolute top-7 right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
-              <button
-                type="button"
-                onClick={() => setLang("en")}
-                className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                onClick={() => setLang("th")}
-                className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
-              >
-                TH
-              </button>
-            </div>
-          )}
-
-          {/* Photo overlapping light zone and navy block */}
-          <div className={`relative flex justify-center ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
-            <div className="w-[158px] h-[158px] rounded-full bg-white p-[3px] -mb-[65px] relative z-10">
+          {/* Photo, name, title, company - sits directly on the background
+              image/wallpaper, so text color adapts to it (isLightBg). */}
+          <div className="relative flex flex-col items-center px-5 pt-5 pb-7">
+            <div className="w-28 h-28 rounded-full bg-white p-[3px] relative">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
@@ -350,94 +338,111 @@ function PublicCardPage() {
                   </div>
                 )}
               </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center"
+                style={{ background: "#0EA5E9", border: "3px solid #FFFFFF" }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              </div>
             </div>
-          </div>
 
-          {/* Navy block: name, title, contact rows, socials */}
-          <div
-            className="relative px-5 pt-[88px] pb-5 overflow-hidden"
-            style={hasBackground ? undefined : { background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}
-          >
-            <svg className="absolute -top-8 -right-8 w-[100px] h-[100px] opacity-[0.12]" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="50" fill="#D9A441" />
-            </svg>
-
-            <h1 className="relative text-lg font-semibold text-center pb-[2px]" style={{ color: textColor }}>
+            <h1 className="text-lg font-bold text-center mt-3" style={{ color: textColor }}>
               {displayName}{card.nickname && ` (${card.nickname})`}
             </h1>
-            <p className="relative text-[17px] font-semibold text-center pb-1" style={{ color: "#D9A441" }}>
+            <p className="text-sm font-semibold text-center mt-0.5" style={{ color: "#5EEAD4" }}>
               {displayJobTitle}
             </p>
             {displayCompany && (
-              <p className="relative text-[16px] text-center pb-4" style={{ color: textColorMuted }}>{displayCompany}</p>
+              <p className="text-[13px] text-center mt-0.5" style={{ color: textColorMuted }}>{displayCompany}</p>
+            )}
+          </div>
+
+          {/* White panel: quick-action contact icons, address, about me,
+              connect (social icons + QR code). */}
+          <div className="relative bg-white rounded-t-[28px] -mt-4 px-5 pt-5 pb-5">
+            {quickActions.length > 0 && (
+              <div className="grid grid-cols-4 gap-x-2 gap-y-3 pb-4 border-b border-[#EEF2F6]">
+                {quickActions.map((action) => (
+                  <a
+                    key={action.key}
+                    href={action.href}
+                    target={action.external ? "_blank" : undefined}
+                    rel={action.external ? "noopener noreferrer" : undefined}
+                    className="flex flex-col items-center gap-1.5"
+                  >
+                    <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: action.bg }}>
+                      <action.icon className="w-4 h-4 text-white" />
+                    </span>
+                    <span className="text-[10.5px] font-semibold text-slate-600 text-center leading-tight">{action.shortLabel}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {card.address && (
+              <div className="flex items-start gap-2 pt-4">
+                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#7C3AED" }} />
+                <span className="text-xs text-slate-500 leading-snug">{card.address}</span>
+              </div>
             )}
 
             {displayBio && (
-              <p className="relative text-xs italic text-center mb-4 leading-loose" style={{ color: textColorBio }}>
-                {displayBio}
-              </p>
-            )}
-
-            {contactRows.length > 0 && (
-              <div className="relative flex flex-col gap-2.5">
-                {contactRows.map((row) => (
-                    <a
-                    key={row.key}
-                    href={row.href}
-                    target={row.external ? "_blank" : undefined}
-                    rel={row.external ? "noopener noreferrer" : undefined}
-                    className="flex items-start gap-2.5"
-                  >
-                    <row.icon className="w-[15px] h-[15px] shrink-0 mt-0.5" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] leading-[1.4]" style={{ color: textColor, whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
-                  </a>
-                ))}
-
+              <div className="pt-4">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E7490" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" /></svg>
+                  <span className="text-xs font-bold text-navy">About Me</span>
+                </div>
+                <p className="text-[11.5px] text-slate-500 leading-relaxed">{displayBio}</p>
               </div>
             )}
 
-            {/* Social icons and the QR code share one row, wrapping onto a new
-                line (rather than overlapping) if enough icons are added that
-                they'd otherwise crowd the QR code out. ml-auto keeps the QR
-                pinned to the right whether or not any icons are present. */}
-            <div className="relative flex flex-wrap items-center gap-3 mt-4">
-              {socialIcons.length > 0 && (
-                <div className="flex flex-wrap gap-2.5">
-                  {socialIcons.map((s) => (
-                    <span key={s.key} className="inline-block">
-                      {s.href ? (
-                        <a
-                          href={s.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-7 h-7 rounded-full flex items-center justify-center"
-                          style={{ background: s.bg }}
-                        >
-                          {s.type === "whatsapp" && (
-                            <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
-                          )}
-                          {s.type === "line" && (
-                            <LineIcon className="w-3.5 h-3.5 fill-white" />
-                          )}
-                        </a>
-                      ) : (
-                        <button onClick={copyWeChat} type="button" className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: s.bg }}>
-                          {s.type === "wechat" && (
-                            <WeChatIcon className="w-3.5 h-3.5 fill-white" />
-                          )}
-                        </button>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div className="pt-4">
+              <div className="flex items-center gap-1.5 mb-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E7490" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" /></svg>
+                <span className="text-xs font-bold text-navy">Connect</span>
+              </div>
+              {/* Social icons and the QR code share one row, wrapping onto a
+                  new line (rather than overlapping) if enough icons are added
+                  that they'd otherwise crowd the QR code out. ml-auto keeps
+                  the QR pinned right whether or not icons are present. */}
+              <div className="flex flex-wrap items-center gap-3">
+                {socialIcons.length > 0 && (
+                  <div className="flex flex-wrap gap-2.5">
+                    {socialIcons.map((s) => (
+                      <span key={s.key} className="inline-block">
+                        {s.href ? (
+                          <a
+                            href={s.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{ background: s.bg }}
+                          >
+                            {s.type === "whatsapp" && (
+                              <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                            )}
+                            {s.type === "line" && (
+                              <LineIcon className="w-3.5 h-3.5 fill-white" />
+                            )}
+                          </a>
+                        ) : (
+                          <button onClick={copyWeChat} type="button" className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: s.bg }}>
+                            {s.type === "wechat" && (
+                              <WeChatIcon className="w-3.5 h-3.5 fill-white" />
+                            )}
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-              <div className="bg-white rounded-xl p-2 shadow-lg shrink-0 ml-auto">
-                <QRCodeSVG value={publicUrl} size={56} className="block" />
+                <div className="bg-white rounded-xl p-2 shadow-lg shrink-0 ml-auto border border-[#EEF2F6]">
+                  <QRCodeSVG value={publicUrl} size={56} className="block" />
+                </div>
               </div>
             </div>
-
-                      </div>
+          </div>
         </div>
 
         {/* Actions: save contact, save as image - grouped together, in the
@@ -452,8 +457,8 @@ function PublicCardPage() {
                   photoUrl: card.photoUrl?.startsWith("data:image") ? card.photoUrl : photoDataUrl || card.photoUrl,
                 })
               }
-              className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg transition-opacity hover:opacity-90"
-              style={{ background: "#D9A441", color: "#0B3D91" }}
+              className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg transition-opacity hover:opacity-90 text-white"
+              style={{ background: "linear-gradient(90deg,#0E7490,#0369A1)" }}
             >
               <Download className="w-4 h-4" />
               Save Contact
