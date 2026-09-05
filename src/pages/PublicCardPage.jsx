@@ -253,6 +253,16 @@ function PublicCardPage() {
     card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
 
+  // The icon row is one-per-type (e.g. a single mail icon covers both email
+  // and email2) - both addresses still get their own line further down,
+  // where there's room to actually show which is which.
+  const seenIconTypes = new Set();
+  const quickActionIcons = quickActions.filter((action) => {
+    if (seenIconTypes.has(action.icon)) return false;
+    seenIconTypes.add(action.icon);
+    return true;
+  });
+
   const socialIcons = [
     card.facebookUrl && { key: "fb", href: card.facebookUrl, bg: "#1877F2", label: "f" },
     card.instagramUrl && { key: "ig", href: card.instagramUrl, bg: "linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4)", label: "ig" },
@@ -367,7 +377,7 @@ function PublicCardPage() {
                     wrapping onto a second line rather than overlapping if
                     there isn't room for all of them. */}
                 <div className="flex flex-wrap gap-2.5 mb-3">
-                  {quickActions.map((action) => (
+                  {quickActionIcons.map((action) => (
                     <a
                       key={action.key}
                       href={action.href}
