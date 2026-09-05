@@ -11,15 +11,20 @@ import { isValidUrl, isValidEmail } from "../utils/formatLinks";
 
 const emptyCard = {
   fullName: "",
+  fullNameTh: "",
   nickname: "",
   jobTitle: "",
+  jobTitleTh: "",
   company: "",
+  companyTh: "",
   department: "",
   phone: "",
   email: "",
+  email2: "",
   website: "",
   address: "",
   bio: "",
+  bioTh: "",
   photoUrl: "",
   backgroundUrl: "",
   lineId: "",
@@ -37,15 +42,20 @@ const emptyCard = {
 function dbRowToForm(row) {
   return {
     fullName: row.full_name || "",
+    fullNameTh: row.full_name_th || "",
     nickname: row.nickname || "",
     jobTitle: row.job_title || "",
+    jobTitleTh: row.job_title_th || "",
     company: row.company || "",
+    companyTh: row.company_th || "",
     department: row.department || "",
     phone: row.phone || "",
     email: row.email || "",
+    email2: row.email2 || "",
     website: row.website || "",
     address: row.address || "",
     bio: row.bio || "",
+    bioTh: row.bio_th || "",
     photoUrl: row.photo_url || "",
     backgroundUrl: row.background_url || "",
     lineId: row.line_id || "",
@@ -65,15 +75,20 @@ function formToDbRow(form, userId) {
   return {
     user_id: userId,
     full_name: form.fullName || null,
+    full_name_th: form.fullNameTh || null,
     nickname: form.nickname || null,
     job_title: form.jobTitle || null,
+    job_title_th: form.jobTitleTh || null,
     company: form.company || null,
+    company_th: form.companyTh || null,
     department: form.department || null,
     phone: form.phone || null,
     email: form.email || null,
+    email2: form.email2 || null,
     website: form.website || null,
     address: form.address || null,
     bio: form.bio || null,
+    bio_th: form.bioTh || null,
     photo_url: form.photoUrl || null,
     background_url: form.backgroundUrl || null,
     line_id: form.lineId || null,
@@ -155,6 +170,11 @@ function CardEditorPage() {
     }
     if (form.email && !isValidEmail(form.email)) {
       setError("Please enter a valid email address.");
+      setTab("contact");
+      return;
+    }
+    if (form.email2 && !isValidEmail(form.email2)) {
+      setError("Please enter a valid second email address.");
       setTab("contact");
       return;
     }
@@ -261,15 +281,30 @@ function CardEditorPage() {
             </div>
             <div className="md:col-span-2 flex flex-col items-center gap-2 mb-2">
               <label className="text-sm font-medium text-ink self-start">Card Background Image (optional)</label>
-              <ImageUploader currentImageUrl={form.backgroundUrl} onFileSelect={setBackgroundFile} />
+              <ImageUploader
+                currentImageUrl={form.backgroundUrl}
+                onFileSelect={setBackgroundFile}
+                shape="card"
+              />
+              <p className="text-xs text-muted text-center max-w-xs">
+                This image fills the whole card behind your details, so it's shown here at roughly
+                your card's proportions. It's center-cropped, so keep the important part of the
+                photo near the middle.
+              </p>
             </div>
             <InputField label="Full Name *" name="fullName" value={form.fullName} onChange={handleChange} />
-            <InputField label="Nickname" name="nickname" value={form.nickname} onChange={handleChange} />
+            <InputField label="Full Name (Thai)" name="fullNameTh" value={form.fullNameTh} onChange={handleChange} />
             <InputField label="Job Title" name="jobTitle" value={form.jobTitle} onChange={handleChange} />
+            <InputField label="Job Title (Thai)" name="jobTitleTh" value={form.jobTitleTh} onChange={handleChange} />
             <InputField label="Company" name="company" value={form.company} onChange={handleChange} />
+            <InputField label="Company (Thai)" name="companyTh" value={form.companyTh} onChange={handleChange} />
+            <InputField label="Nickname" name="nickname" value={form.nickname} onChange={handleChange} />
             <InputField label="Department" name="department" value={form.department} onChange={handleChange} />
             <div className="md:col-span-2">
               <InputField label="Short Bio / Tagline" name="bio" value={form.bio} onChange={handleChange} />
+            </div>
+            <div className="md:col-span-2">
+              <InputField label="Short Bio / Tagline (Thai)" name="bioTh" value={form.bioTh} onChange={handleChange} />
             </div>
           </div>
         )}
@@ -278,6 +313,7 @@ function CardEditorPage() {
           <div className="bg-white rounded-xl2 shadow-card p-6 grid md:grid-cols-2 gap-4">
             <InputField label="Phone Number" name="phone" value={form.phone} onChange={handleChange} placeholder="+66812345678" />
             <InputField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
+            <InputField label="Email 2 (optional)" name="email2" type="email" value={form.email2} onChange={handleChange} />
             <InputField label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://yourcompany.com" />
             <InputField label="Company Address" name="address" value={form.address} onChange={handleChange} />
           </div>

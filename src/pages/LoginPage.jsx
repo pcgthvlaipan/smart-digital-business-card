@@ -69,6 +69,12 @@ function LoginPage() {
               value={form.password}
               onChange={handleChange}
             />
+            <Link
+              to="/forgot-password"
+              className="text-sm text-navy font-medium hover:underline self-end -mt-2"
+            >
+              Forgot password?
+            </Link>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 

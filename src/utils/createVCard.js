@@ -10,7 +10,7 @@ function foldLine(line, maxLength = 75) {
   return chunks.map((chunk, idx) => (idx === 0 ? chunk : " " + chunk)).join("\r\n");
 }
 
-export function createVCard(card) {
+export async function createVCard(card) {
   const lines = [
     "BEGIN:VCARD",
     "VERSION:2.1",
@@ -40,10 +40,32 @@ export function createVCard(card) {
     .filter((l, i) => l !== "" || i === lines.length - 2)
     .join("\r\n");
   const blob = new Blob([vcardContent], { type: "text/vcard" });
+  const fileName = `${card.fullName || "contact"}.vcf`;
+
+  // iOS Safari doesn't reliably support the <a download> attribute for blob
+  // URLs (same issue as the "Save Card as Image" button below), so use the
+  // native share sheet there. Android and desktop download directly.
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS && navigator.canShare) {
+    const file = new File([blob], fileName, { type: "text/vcard" });
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+        return;
+      } catch (shareErr) {
+        if (shareErr.name !== "AbortError") {
+          console.error("Failed to share vCard:", shareErr);
+        } else {
+          return;
+        }
+      }
+    }
+  }
+
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${card.fullName || "contact"}.vcf`;
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(url);
 }

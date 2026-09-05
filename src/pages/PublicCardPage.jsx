@@ -14,15 +14,20 @@ function dbRowToCard(row) {
   return {
     id: row.id,
     fullName: row.full_name || "",
+    fullNameTh: row.full_name_th || "",
     nickname: row.nickname || "",
     jobTitle: row.job_title || "",
+    jobTitleTh: row.job_title_th || "",
     department: row.department || "",
     company: row.company || "",
+    companyTh: row.company_th || "",
     phone: row.phone || "",
     email: row.email || "",
+    email2: row.email2 || "",
     website: row.website || "",
     address: row.address || "",
     bio: row.bio || "",
+    bioTh: row.bio_th || "",
     photoUrl: row.photo_url || "",
     backgroundUrl: row.background_url || "",
     lineId: row.line_id || "",
@@ -44,6 +49,7 @@ function PublicCardPage() {
   const cardRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [lang, setLang] = useState("en");
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -155,9 +161,16 @@ function PublicCardPage() {
   const backgroundImage = card.backgroundUrl || defaultWallpaper;
   const hasBackground = true;
 
+  const hasThai = Boolean(card.fullNameTh || card.jobTitleTh || card.companyTh || card.bioTh);
+  const displayName = (lang === "th" && card.fullNameTh) || card.fullName;
+  const displayJobTitle = (lang === "th" && card.jobTitleTh) || card.jobTitle;
+  const displayCompany = (lang === "th" && card.companyTh) || card.company;
+  const displayBio = (lang === "th" && card.bioTh) || card.bio;
+
   const contactRows = [
     card.phone && { key: "call", label: card.phone, icon: Phone, href: formatPhoneLink(card.phone) },
     card.email && { key: "email", label: card.email, icon: Mail, href: formatEmailLink(card.email) },
+    card.email2 && { key: "email2", label: card.email2, icon: Mail, href: formatEmailLink(card.email2) },
     card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), icon: Globe, href: card.website, external: true },
     card.googleMapsUrl && { key: "map", label: "View location", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
@@ -201,6 +214,24 @@ function PublicCardPage() {
               </svg>
             )}
             <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
+            {hasThai && (
+              <div className="absolute top-3 left-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("th")}
+                  className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
+                >
+                  TH
+                </button>
+              </div>
+            )}
             <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg">
               <QRCodeSVG value={publicUrl} size={56} className="block" />
             </div>
@@ -211,7 +242,7 @@ function PublicCardPage() {
             <div className="w-[158px] h-[158px] rounded-full bg-white p-[3px] -mb-[65px] relative z-10">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
-                  <img src={card.photoUrl} alt={card.fullName} className="w-full h-full object-cover" />
+                  <img src={card.photoUrl} alt={displayName} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/70 text-xs">
                     No photo
@@ -231,18 +262,18 @@ function PublicCardPage() {
             </svg>
 
             <h1 className="relative text-lg font-semibold text-white text-center pb-[2px]">
-              {card.fullName}{card.nickname && ` (${card.nickname})`}
+              {displayName}{card.nickname && ` (${card.nickname})`}
             </h1>
             <p className="relative text-[17px] font-semibold text-center pb-1" style={{ color: "#D9A441" }}>
-              {card.jobTitle}
+              {displayJobTitle}
             </p>
-            {card.company && (
-              <p className="relative text-[16px] text-white/70 text-center pb-4">{card.company}</p>
+            {displayCompany && (
+              <p className="relative text-[16px] text-white/70 text-center pb-4">{displayCompany}</p>
             )}
 
-            {card.bio && (
+            {displayBio && (
               <p className="relative text-xs text-white/75 italic text-center mb-4 leading-loose">
-                {card.bio}
+                {displayBio}
               </p>
             )}
 
