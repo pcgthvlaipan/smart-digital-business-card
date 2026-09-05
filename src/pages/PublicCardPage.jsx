@@ -198,7 +198,7 @@ function PublicCardPage() {
 
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
-        scale: 3,
+        scale: 4,
         backgroundColor: null,
         scrollX: 0,
         scrollY: -window.scrollY,
