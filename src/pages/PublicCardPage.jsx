@@ -272,7 +272,7 @@ function PublicCardPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen py-10 px-4 bg-[#F4F2ED]">
+    <div className="min-h-screen py-10 px-4" style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}>
       <div className="max-w-[360px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
