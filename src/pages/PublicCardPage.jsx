@@ -489,7 +489,7 @@ function PublicCardPage() {
                 })
               }
               className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full transition-opacity hover:opacity-90 text-white"
-              style={{ background: "linear-gradient(90deg,#0E7490,#0369A1)" }}
+              style={{ background: "linear-gradient(90deg,#F97316,#EA580C)" }}
             >
               <Download className="w-4 h-4 shrink-0" />
               Save Contact
