@@ -301,11 +301,13 @@ function PublicCardPage() {
             />
           </div>
 
-          {/* Language toggle, top right. Positioned against the outer card, not
-              the header, so it can never get clipped by the header's own
-              (much shorter) content height. */}
+          {/* Language toggle, top right, aligned to the same top offset as the
+              logo (the header's own pt-7) so they sit at the same level.
+              Positioned against the outer card, not the header, so it can
+              never get clipped by the header's own (much shorter) content
+              height. */}
           {hasThai && (
-            <div className="absolute top-3 right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
+            <div className="absolute top-7 right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
               <button
                 type="button"
                 onClick={() => setLang("en")}
@@ -422,16 +424,18 @@ function PublicCardPage() {
             )}
 
                       </div>
+        </div>
 
-          {/* Save Contact button */}
-          <div className={`relative z-10 px-5 pb-5 ${hasBackground ? "" : "bg-white"}`}>
-            {/* QR code, bottom right - in normal flow (not absolutely
-                positioned) so it can never overlap the button below it. */}
-            <div className="flex justify-end mb-3">
-              <div className="bg-white rounded-xl p-2 shadow-lg">
-                <QRCodeSVG value={publicUrl} size={56} className="block" />
-              </div>
-            </div>
+        {/* Actions: QR code, save contact, save as image - grouped in one place
+            rather than scattered, and kept outside cardRef so none of these
+            controls end up baked into the exported card image. */}
+        <div className="bg-white rounded-xl2 shadow-card p-5 mt-3 flex flex-col items-center gap-3">
+          <div className="bg-white rounded-xl p-2 border border-border">
+            <QRCodeSVG value={publicUrl} size={72} className="block" />
+          </div>
+          <p className="text-xs text-muted">Scan to open this card</p>
+
+          <div className="w-full flex flex-col gap-2.5 mt-1">
             <button
               onClick={() =>
                 createVCard({
@@ -445,17 +449,15 @@ function PublicCardPage() {
               <Download className="w-4 h-4" />
               Save Contact
             </button>
-          </div>
-        </div>
 
-        <div className="px-0 mt-3">
-          <button
-            onClick={saveCardAsImage}
-            className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg border border-border bg-white text-navy hover:bg-surface transition-colors"
-          >
-            <ImageIcon className="w-4 h-4" />
-            Save Card as Image
-          </button>
+            <button
+              onClick={saveCardAsImage}
+              className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg border border-border bg-surface text-navy hover:bg-border/30 transition-colors"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Save Card as Image
+            </button>
+          </div>
         </div>
 
         <p className="text-center text-xs text-muted/70 mt-5">Powered by Smart Digital Card</p>
