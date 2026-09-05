@@ -330,7 +330,7 @@ function PublicCardPage() {
           {/* Photo, name, title, company - sits directly on the background
               image/wallpaper, so text color adapts to it (isLightBg). */}
           <div className="relative flex flex-col items-center px-5 pt-5 pb-7">
-            <div className="w-[134px] h-[134px] rounded-full bg-white p-[3px] relative">
+            <div className="w-[161px] h-[161px] rounded-full bg-white p-[3px] relative">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
@@ -479,7 +479,7 @@ function PublicCardPage() {
         {/* Actions: save contact, save as image - grouped together, in the
             same card section as the face above (just a border seam between
             them), directly under the QR code on the card. */}
-        <div className="relative z-10 bg-[#F1F5F9] p-5 flex flex-col items-center gap-3">
+        <div className="relative z-10 bg-[#16A34A] p-5 flex flex-col items-center gap-3">
           <div className="w-full flex gap-2.5">
             <button
               onClick={() =>
