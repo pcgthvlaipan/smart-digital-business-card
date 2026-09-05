@@ -280,7 +280,7 @@ function PublicCardPage() {
         <div className="bg-[#F1F5F9] rounded-[20px] shadow-card overflow-hidden">
         <div
           ref={cardRef}
-          className="relative bg-white"
+          className="relative bg-white overflow-hidden"
         >
           {hasBackground && (
             <>
@@ -500,7 +500,7 @@ function PublicCardPage() {
               className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full border border-border bg-surface text-navy hover:bg-border/30 transition-colors"
             >
               <ImageIcon className="w-4 h-4 shrink-0" />
-              Save Card as Image
+              Save Image
             </button>
           </div>
         </div>
