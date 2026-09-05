@@ -172,14 +172,21 @@ function PublicCardPage() {
   const saveCardAsImage = async () => {
     if (!cardRef.current) return;
     try {
-      // Preload the background image fully before capture
-      await new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = resolve;
-        img.onerror = resolve;
-        img.src = backgroundImage;
-      });
+      // Preload every image the capture depends on - background, profile
+      // photo, logo - fully before capture. Only the background was being
+      // preloaded before; the profile photo could still be mid-decode when
+      // html2canvas grabbed it, which is a likely cause of it coming out soft.
+      const preloadImage = (src) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = src;
+        });
+      await Promise.all(
+        [backgroundImage, card.photoUrl, card.logoUrl].filter(Boolean).map(preloadImage)
+      );
 
       // Ensure all custom fonts are fully loaded before measuring/rendering text
       if (document.fonts && document.fonts.ready) {
@@ -191,7 +198,7 @@ function PublicCardPage() {
 
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
-        scale: 2,
+        scale: 3,
         backgroundColor: null,
         scrollX: 0,
         scrollY: -window.scrollY,
