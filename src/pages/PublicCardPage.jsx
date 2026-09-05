@@ -396,41 +396,43 @@ function PublicCardPage() {
               </div>
             )}
 
-            {socialIcons.length > 0 && (
-              <div className="relative flex gap-2.5 mt-4">
-                {socialIcons.map((s) => (
-                  <span key={s.key} className="inline-block">
-                    {s.href ? (
-                      <a
-                        href={s.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-7 h-7 rounded-full flex items-center justify-center"
-                        style={{ background: s.bg }}
-                      >
-                        {s.type === "whatsapp" && (
-                          <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
-                        )}
-                        {s.type === "line" && (
-                          <LineIcon className="w-3.5 h-3.5 fill-white" />
-                        )}
-                      </a>
-                    ) : (
-                      <button onClick={copyWeChat} type="button" className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: s.bg }}>
-                        {s.type === "wechat" && (
-                          <WeChatIcon className="w-3.5 h-3.5 fill-white" />
-                        )}
-                      </button>
-                    )}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* Social icons and the QR code share one row, wrapping onto a new
+                line (rather than overlapping) if enough icons are added that
+                they'd otherwise crowd the QR code out. ml-auto keeps the QR
+                pinned to the right whether or not any icons are present. */}
+            <div className="relative flex flex-wrap items-center gap-3 mt-4">
+              {socialIcons.length > 0 && (
+                <div className="flex flex-wrap gap-2.5">
+                  {socialIcons.map((s) => (
+                    <span key={s.key} className="inline-block">
+                      {s.href ? (
+                        <a
+                          href={s.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-7 h-7 rounded-full flex items-center justify-center"
+                          style={{ background: s.bg }}
+                        >
+                          {s.type === "whatsapp" && (
+                            <WhatsAppIcon className="w-3.5 h-3.5 fill-white" />
+                          )}
+                          {s.type === "line" && (
+                            <LineIcon className="w-3.5 h-3.5 fill-white" />
+                          )}
+                        </a>
+                      ) : (
+                        <button onClick={copyWeChat} type="button" className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: s.bg }}>
+                          {s.type === "wechat" && (
+                            <WeChatIcon className="w-3.5 h-3.5 fill-white" />
+                          )}
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-            {/* QR code, on the card face itself (so it's part of the
-                exported image too), bottom right, above the actions below. */}
-            <div className="relative flex justify-end mt-4">
-              <div className="bg-white rounded-xl p-2 shadow-lg">
+              <div className="bg-white rounded-xl p-2 shadow-lg shrink-0 ml-auto">
                 <QRCodeSVG value={publicUrl} size={56} className="block" />
               </div>
             </div>
