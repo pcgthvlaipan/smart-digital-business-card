@@ -320,7 +320,7 @@ function PublicCardPage() {
           {/* Photo, name, title, company - sits directly on the background
               image/wallpaper, so text color adapts to it (isLightBg). */}
           <div className="relative flex flex-col items-center px-5 pt-5 pb-7">
-            <div className="w-28 h-28 rounded-full bg-white p-[3px] relative">
+            <div className="w-[134px] h-[134px] rounded-full bg-white p-[3px] relative">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
