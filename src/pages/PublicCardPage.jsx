@@ -262,9 +262,13 @@ function PublicCardPage() {
   return (
     <div className="min-h-screen py-10 px-4 bg-[#F4F2ED]">
       <div className="max-w-[360px] mx-auto">
+        {/* One card section, start to finish: the card face (ref'd for
+            "Save as Image") and the actions below it share this same
+            rounded, shadowed container with no gap between them. */}
+        <div className="bg-white rounded-[20px] shadow-card overflow-hidden">
         <div
           ref={cardRef}
-          className="relative bg-white rounded-[20px] shadow-card overflow-hidden"
+          className="relative bg-white"
         >
           {hasBackground && (
             <>
@@ -426,10 +430,12 @@ function PublicCardPage() {
                       </div>
         </div>
 
-        {/* Actions: QR code, save contact, save as image - grouped in one place
-            rather than scattered, and kept outside cardRef so none of these
-            controls end up baked into the exported card image. */}
-        <div className="bg-white rounded-xl2 shadow-card p-5 mt-3 flex flex-col items-center gap-3">
+        {/* Actions: QR code, save contact, save as image - grouped in one
+            place rather than scattered, in the same card section as the
+            face above (just a border seam between them). Kept outside
+            cardRef so none of these controls end up baked into the
+            exported card image. */}
+        <div className="relative z-10 border-t border-border p-5 flex flex-col items-center gap-3">
           <div className="bg-white rounded-xl p-2 border border-border">
             <QRCodeSVG value={publicUrl} size={72} className="block" />
           </div>
@@ -458,6 +464,7 @@ function PublicCardPage() {
               Save Card as Image
             </button>
           </div>
+        </div>
         </div>
 
         <p className="text-center text-xs text-muted/70 mt-5">Powered by Smart Digital Card</p>
