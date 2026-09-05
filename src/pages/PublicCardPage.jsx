@@ -192,11 +192,16 @@ function PublicCardPage() {
         >
           {hasBackground && (
             <>
-              <img
-                src={backgroundImage}
-                alt=""
-                crossOrigin="anonymous"
-                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+              {/* A background-image div, not an <img> with object-cover: html2canvas
+                  (used by "Save Card as Image") doesn't support object-fit at all and
+                  would stretch an <img> to fill the box instead of cropping it. */}
+              <div
+                className="absolute inset-0 z-0 pointer-events-none"
+                style={{
+                  backgroundImage: `url(${backgroundImage})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               />
               <div className="absolute inset-0 bg-black/12 pointer-events-none z-0" />
             </>
@@ -232,9 +237,12 @@ function PublicCardPage() {
                 </button>
               </div>
             )}
-            <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg">
-              <QRCodeSVG value={publicUrl} size={56} className="block" />
-            </div>
+          </div>
+
+          {/* Positioned against the outer card, not the header, so it can never
+              get clipped by the header's own (much shorter) content height. */}
+          <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg z-10">
+            <QRCodeSVG value={publicUrl} size={56} className="block" />
           </div>
 
           {/* Photo overlapping light zone and navy block */}
@@ -242,7 +250,16 @@ function PublicCardPage() {
             <div className="w-[158px] h-[158px] rounded-full bg-white p-[3px] -mb-[65px] relative z-10">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
-                  <img src={card.photoUrl} alt={displayName} className="w-full h-full object-cover" />
+                  <div
+                    role="img"
+                    aria-label={displayName}
+                    className="w-full h-full"
+                    style={{
+                      backgroundImage: `url(${card.photoUrl})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/70 text-xs">
                     No photo
