@@ -427,21 +427,22 @@ function PublicCardPage() {
               </div>
             )}
 
+            {/* QR code, on the card face itself (so it's part of the
+                exported image too), bottom right, above the actions below. */}
+            <div className="relative flex justify-end mt-4">
+              <div className="bg-white rounded-xl p-2 shadow-lg">
+                <QRCodeSVG value={publicUrl} size={56} className="block" />
+              </div>
+            </div>
+
                       </div>
         </div>
 
-        {/* Actions: QR code, save contact, save as image - grouped in one
-            place rather than scattered, in the same card section as the
-            face above (just a border seam between them). Kept outside
-            cardRef so none of these controls end up baked into the
-            exported card image. */}
+        {/* Actions: save contact, save as image - grouped together, in the
+            same card section as the face above (just a border seam between
+            them), directly under the QR code on the card. */}
         <div className="relative z-10 border-t border-border p-5 flex flex-col items-center gap-3">
-          <div className="bg-white rounded-xl p-2 border border-border">
-            <QRCodeSVG value={publicUrl} size={72} className="block" />
-          </div>
-          <p className="text-xs text-muted">Scan to open this card</p>
-
-          <div className="w-full flex flex-col gap-2.5 mt-1">
+          <div className="w-full flex flex-col gap-2.5">
             <button
               onClick={() =>
                 createVCard({
