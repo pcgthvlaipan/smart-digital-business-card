@@ -220,28 +220,6 @@ function PublicCardPage() {
                 <rect width="100%" height="100%" fill="url(#dots)" />
               </svg>
             )}
-            {/* In normal flow above the logo, not absolutely positioned over it,
-                so it can never sit on top of the logo regardless of logo size. */}
-            {hasThai && (
-              <div className="relative flex justify-start mb-2">
-                <div className="inline-flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => setLang("en")}
-                    className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLang("th")}
-                    className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
-                  >
-                    TH
-                  </button>
-                </div>
-              </div>
-            )}
             <img
               src={card.logoUrl || pcgLogo}
               alt={card.logoUrl ? `${card.company || card.fullName} logo` : "Perfect Companion Group"}
@@ -254,6 +232,26 @@ function PublicCardPage() {
           <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg z-10">
             <QRCodeSVG value={publicUrl} size={56} className="block" />
           </div>
+
+          {/* Language toggle, directly under the QR code */}
+          {hasThai && (
+            <div className="absolute top-[92px] right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("th")}
+                className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
+              >
+                TH
+              </button>
+            </div>
+          )}
 
           {/* Photo overlapping light zone and navy block */}
           <div className={`relative flex justify-center ${hasBackground ? "" : "bg-[#EEEEEC]"}`}>
@@ -312,10 +310,10 @@ function PublicCardPage() {
                     href={row.href}
                     target={row.external ? "_blank" : undefined}
                     rel={row.external ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-2.5"
+                    className="flex items-start gap-2.5"
                   >
-                    <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white" style={{ whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
+                    <row.icon className="w-[15px] h-[15px] shrink-0 mt-0.5" style={{ color: "#D9A441" }} />
+                    <span className="text-[13px] text-white leading-[1.4]" style={{ whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
 
