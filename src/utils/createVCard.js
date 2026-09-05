@@ -10,6 +10,21 @@ function foldLine(line, maxLength = 75) {
   return chunks.map((chunk, idx) => (idx === 0 ? chunk : " " + chunk)).join("\r\n");
 }
 
+// vCard structural characters (backslash, semicolon, comma) and newlines
+// inside a VALUE must be escaped, or a name/address/note containing one
+// would corrupt the surrounding fields when a phone parses it.
+function esc(value) {
+  return String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+}
+
+function waUrl(number) {
+  return `https://wa.me/${number.replace(/[^\d]/g, "")}`;
+}
+
 // card.photoUrl is normally a remote Supabase Storage URL, not a data URI -
 // fetch and inline it as base64 so phones that don't follow a remote PHOTO
 // URL still actually get the picture on the imported contact.
@@ -37,14 +52,36 @@ export async function createVCard(card) {
   const lines = [
     "BEGIN:VCARD",
     "VERSION:2.1",
-    `N:${card.fullName || ""};;;;`,
-    `FN:${card.fullName || ""}`,
-    `ORG:${card.company || ""}`,
-    `TITLE:${card.jobTitle || ""}`,
-    card.phone ? `TEL;CELL:${card.phone}` : "",
-    card.email ? `EMAIL;INTERNET:${card.email}` : "",
-    card.website ? `URL:${card.website}` : "",
+    `N:${esc(card.fullName || "")};;;;`,
+    `FN:${esc(card.fullName || "")}`,
+    card.nickname ? `NICKNAME:${esc(card.nickname)}` : "",
+    card.department ? `ORG:${esc(card.company || "")};${esc(card.department)}` : `ORG:${esc(card.company || "")}`,
+    `TITLE:${esc(card.jobTitle || "")}`,
+    card.phone ? `TEL;CELL:${esc(card.phone)}` : "",
+    card.email ? `EMAIL;INTERNET:${esc(card.email)}` : "",
+    card.email2 ? `EMAIL;INTERNET:${esc(card.email2)}` : "",
+    // Free-text address, not broken into street/city/etc components - the
+    // "extended address" slot is the conventional place to put it whole.
+    card.address ? `ADR;WORK:;${esc(card.address)};;;;;` : "",
+    card.website ? `URL:${esc(card.website)}` : "",
+    card.facebookUrl ? `URL:${esc(card.facebookUrl)}` : "",
+    card.instagramUrl ? `URL:${esc(card.instagramUrl)}` : "",
+    card.linkedinUrl ? `URL:${esc(card.linkedinUrl)}` : "",
+    card.tiktokUrl ? `URL:${esc(card.tiktokUrl)}` : "",
+    card.youtubeUrl ? `URL:${esc(card.youtubeUrl)}` : "",
+    card.googleMapsUrl ? `URL:${esc(card.googleMapsUrl)}` : "",
+    card.whatsappNumber ? `URL:${esc(waUrl(card.whatsappNumber))}` : "",
+    card.lineUrl || card.lineId ? `URL:${esc(card.lineUrl || `https://line.me/ti/p/${card.lineId}`)}` : "",
   ];
+
+  // WeChat has no public profile URL to link to, so it goes in NOTE instead,
+  // alongside the bio (both optional, joined only if present). Each part is
+  // escaped on its own, then joined with a literal \n - escaping the already-
+  // joined string would double-escape that separator's own backslash.
+  const noteParts = [card.bio, card.wechatId ? `WeChat: ${card.wechatId}` : ""].filter(Boolean).map(esc);
+  if (noteParts.length > 0) {
+    lines.push(foldLine(`NOTE:${noteParts.join("\\n")}`));
+  }
 
   const photoDataUrl = await resolvePhotoDataUrl(card.photoUrl);
   if (photoDataUrl) {
