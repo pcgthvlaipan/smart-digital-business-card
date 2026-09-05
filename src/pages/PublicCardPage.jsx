@@ -401,7 +401,7 @@ function PublicCardPage() {
             )}
 
             {card.address && (
-              <div className="flex items-start gap-2 pt-4">
+              <div className="flex items-start gap-2 pt-1.5">
                 <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#7C3AED" }} />
                 <span className="text-xs text-slate-500 leading-snug">{card.address}</span>
               </div>
