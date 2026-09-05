@@ -204,6 +204,19 @@ function PublicCardPage() {
         scrollY: -window.scrollY,
         windowWidth: document.documentElement.scrollWidth,
         windowHeight: document.documentElement.scrollHeight,
+        // html2canvas measures each element's real position correctly, but it
+        // estimates where to paint TEXT glyphs within that box using its own
+        // font-metrics guess rather than the browser's actual rendering - with
+        // a webfont (Inter/Noto Sans Thai) that estimate can drift, which is
+        // why an icon can look right while the text next to it renders shifted
+        // in the exported image even though live rendering looks fine. This
+        // nudges the icons down in the clone used only for capture, never on
+        // the live page, to compensate.
+        onclone: (clonedDoc) => {
+          clonedDoc.querySelectorAll(".detail-icon").forEach((icon) => {
+            icon.style.transform = "translateY(3px)";
+          });
+        },
       });
       const dataUrl = canvas.toDataURL("image/png", 0.95);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -409,7 +422,7 @@ function PublicCardPage() {
                       rel={action.external ? "noopener noreferrer" : undefined}
                       className="flex items-center gap-2"
                     >
-                      <action.icon className="w-3.5 h-3.5 shrink-0" style={{ color: action.bg }} />
+                      <action.icon className="w-3.5 h-3.5 shrink-0 detail-icon" style={{ color: action.bg }} />
                       <span className="text-[14px] font-medium text-slate-700 break-all">{action.label}</span>
                     </a>
                   ))}
@@ -419,7 +432,7 @@ function PublicCardPage() {
 
             {card.address && (
               <div className="flex items-start gap-2 pt-1.5">
-                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#7C3AED" }} />
+                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 detail-icon" style={{ color: "#7C3AED" }} />
                 <span className="text-[13px] text-slate-500 leading-snug">{card.address}</span>
               </div>
             )}
