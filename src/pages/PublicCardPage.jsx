@@ -298,18 +298,18 @@ function PublicCardPage() {
               className="h-7 max-w-[120px] w-auto object-contain"
             />
             {hasThai && (
-              <div className="flex bg-white/90 rounded-lg p-1 shadow-lg text-[11px] font-semibold shrink-0">
+              <div className="flex rounded-full overflow-hidden shadow-lg text-[11px] font-semibold shrink-0">
                 <button
                   type="button"
                   onClick={() => setLang("en")}
-                  className={`px-2 py-1 rounded-md transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
+                  className={`px-3 py-1.5 transition-colors ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}
                 >
                   EN
                 </button>
                 <button
                   type="button"
                   onClick={() => setLang("th")}
-                  className={`px-2 py-1 rounded-md transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
+                  className={`px-3 py-1.5 transition-colors ${lang === "th" ? "bg-navy text-white" : "bg-white text-navy"}`}
                 >
                   TH
                 </button>
@@ -470,7 +470,7 @@ function PublicCardPage() {
             same card section as the face above (just a border seam between
             them), directly under the QR code on the card. */}
         <div className="relative z-10 border-t border-border p-5 flex flex-col items-center gap-3">
-          <div className="w-full flex flex-col gap-2.5">
+          <div className="w-full flex gap-2.5">
             <button
               onClick={() =>
                 createVCard({
@@ -478,18 +478,18 @@ function PublicCardPage() {
                   photoUrl: card.photoUrl?.startsWith("data:image") ? card.photoUrl : photoDataUrl || card.photoUrl,
                 })
               }
-              className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg transition-opacity hover:opacity-90 text-white"
+              className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full transition-opacity hover:opacity-90 text-white"
               style={{ background: "linear-gradient(90deg,#0E7490,#0369A1)" }}
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-4 h-4 shrink-0" />
               Save Contact
             </button>
 
             <button
               onClick={saveCardAsImage}
-              className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg border border-border bg-surface text-navy hover:bg-border/30 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 font-semibold text-sm py-3 rounded-full border border-border bg-surface text-navy hover:bg-border/30 transition-colors"
             >
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-4 h-4 shrink-0" />
               Save Card as Image
             </button>
           </div>
