@@ -241,15 +241,16 @@ function PublicCardPage() {
   const textColor = isLightBg ? "#0B3D91" : "#FFFFFF";
   const textColorMuted = isLightBg ? "rgba(11,61,145,0.72)" : "rgba(255,255,255,0.7)";
 
-  // Quick-action icons: everything with a real tappable destination. Address
-  // has no link of its own (it's shown as plain text below the grid instead)
-  // - "Map" already covers "open this in Google Maps" when a link is set.
+  // Quick-action rows: everything with a real tappable destination, shown
+  // with its actual value (not just a generic label) - address has no link
+  // of its own (it's shown as plain text below instead) - "Map" already
+  // covers "open this in Google Maps" when a link is set.
   const quickActions = [
-    card.phone && { key: "call", shortLabel: "Call", bg: "#0284C7", icon: Phone, href: formatPhoneLink(card.phone) },
-    card.email && { key: "email", shortLabel: "Email", bg: "#0EA5E9", icon: Mail, href: formatEmailLink(card.email) },
-    card.email2 && { key: "email2", shortLabel: "Email 2", bg: "#38BDF8", icon: Mail, href: formatEmailLink(card.email2) },
-    card.website && { key: "website", shortLabel: "Website", bg: "#0D9488", icon: Globe, href: card.website, external: true },
-    card.googleMapsUrl && { key: "map", shortLabel: "Map", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
+    card.phone && { key: "call", label: card.phone, bg: "#0284C7", icon: Phone, href: formatPhoneLink(card.phone) },
+    card.email && { key: "email", label: card.email, bg: "#0EA5E9", icon: Mail, href: formatEmailLink(card.email) },
+    card.email2 && { key: "email2", label: card.email2, bg: "#38BDF8", icon: Mail, href: formatEmailLink(card.email2) },
+    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), bg: "#0D9488", icon: Globe, href: card.website, external: true },
+    card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
 
   const socialIcons = [
@@ -361,19 +362,19 @@ function PublicCardPage() {
               connect (social icons + QR code). */}
           <div className="relative bg-white rounded-t-[28px] -mt-4 px-5 pt-5 pb-5">
             {quickActions.length > 0 && (
-              <div className="grid grid-cols-4 gap-x-2 gap-y-3 pb-4 border-b border-[#EEF2F6]">
+              <div className="flex flex-col gap-2.5 pb-4 border-b border-[#EEF2F6]">
                 {quickActions.map((action) => (
                   <a
                     key={action.key}
                     href={action.href}
                     target={action.external ? "_blank" : undefined}
                     rel={action.external ? "noopener noreferrer" : undefined}
-                    className="flex flex-col items-center gap-1.5"
+                    className="flex items-center gap-3"
                   >
-                    <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: action.bg }}>
+                    <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: action.bg }}>
                       <action.icon className="w-4 h-4 text-white" />
                     </span>
-                    <span className="text-[10.5px] font-semibold text-slate-600 text-center leading-tight">{action.shortLabel}</span>
+                    <span className="text-[13px] font-medium text-slate-700 break-all">{action.label}</span>
                   </a>
                 ))}
               </div>
