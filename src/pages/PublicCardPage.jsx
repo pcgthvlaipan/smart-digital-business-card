@@ -30,6 +30,7 @@ function dbRowToCard(row) {
     bioTh: row.bio_th || "",
     photoUrl: row.photo_url || "",
     backgroundUrl: row.background_url || "",
+    logoUrl: row.logo_url || "",
     lineId: row.line_id || "",
     lineUrl: row.line_url || "",
     wechatId: row.wechat_id || "",
@@ -171,6 +172,7 @@ function PublicCardPage() {
     card.phone && { key: "call", label: card.phone, icon: Phone, href: formatPhoneLink(card.phone) },
     card.email && { key: "email", label: card.email, icon: Mail, href: formatEmailLink(card.email) },
     card.email2 && { key: "email2", label: card.email2, icon: Mail, href: formatEmailLink(card.email2) },
+    card.address && { key: "address", label: card.address, icon: MapPin, wrap: true },
     card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), icon: Globe, href: card.website, external: true },
     card.googleMapsUrl && { key: "map", label: "View location", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
@@ -240,7 +242,11 @@ function PublicCardPage() {
                 </div>
               </div>
             )}
-            <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
+            <img
+              src={card.logoUrl || pcgLogo}
+              alt={card.logoUrl ? `${card.company || card.fullName} logo` : "Perfect Companion Group"}
+              className="relative h-9 max-w-[160px] w-auto object-contain mb-3 block"
+            />
           </div>
 
           {/* Positioned against the outer card, not the header, so it can never
@@ -309,7 +315,7 @@ function PublicCardPage() {
                     className="flex items-center gap-2.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white" style={{ whiteSpace: "nowrap" }}>{row.label}</span>
+                    <span className="text-[13px] text-white" style={{ whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
 

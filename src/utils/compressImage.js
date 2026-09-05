@@ -1,4 +1,4 @@
-export function compressImage(file, maxSize = 300, quality = 0.7) {
+export function compressImage(file, maxSize = 300, quality = 0.7, mimeType = "image/jpeg") {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -22,7 +22,7 @@ export function compressImage(file, maxSize = 300, quality = 0.7) {
             if (blob) resolve(blob);
             else reject(new Error("Failed to compress image"));
           },
-          "image/jpeg",
+          mimeType,
           quality
         );
       };

@@ -27,6 +27,7 @@ const emptyCard = {
   bioTh: "",
   photoUrl: "",
   backgroundUrl: "",
+  logoUrl: "",
   lineId: "",
   lineUrl: "",
   wechatId: "",
@@ -58,6 +59,7 @@ function dbRowToForm(row) {
     bioTh: row.bio_th || "",
     photoUrl: row.photo_url || "",
     backgroundUrl: row.background_url || "",
+    logoUrl: row.logo_url || "",
     lineId: row.line_id || "",
     lineUrl: row.line_url || "",
     wechatId: row.wechat_id || "",
@@ -91,6 +93,7 @@ function formToDbRow(form, userId) {
     bio_th: form.bioTh || null,
     photo_url: form.photoUrl || null,
     background_url: form.backgroundUrl || null,
+    logo_url: form.logoUrl || null,
     line_id: form.lineId || null,
     line_url: form.lineUrl || null,
     wechat_id: form.wechatId || null,
@@ -104,10 +107,18 @@ function formToDbRow(form, userId) {
   };
 }
 
+const BUCKET_FILE_INFO = {
+  avatars: { name: "photo", contentType: "image/jpeg", ext: "jpg" },
+  backgrounds: { name: "background", contentType: "image/jpeg", ext: "jpg" },
+  // Logos keep their transparency, so they're compressed to PNG, not JPEG.
+  logos: { name: "logo", contentType: "image/png", ext: "png" },
+};
+
 async function uploadToBucket(bucket, userId, blob) {
-  const path = `${userId}/${bucket === "avatars" ? "photo" : "background"}-${Date.now()}.jpg`;
+  const { name, contentType, ext } = BUCKET_FILE_INFO[bucket];
+  const path = `${userId}/${name}-${Date.now()}.${ext}`;
   const { error } = await supabase.storage.from(bucket).upload(path, blob, {
-    contentType: "image/jpeg",
+    contentType,
     upsert: true,
   });
   if (error) throw error;
@@ -124,6 +135,7 @@ function CardEditorPage() {
   const [form, setForm] = useState(emptyCard);
   const [photoFile, setPhotoFile] = useState(null);
   const [backgroundFile, setBackgroundFile] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -214,7 +226,14 @@ function CardEditorPage() {
         backgroundUrl = await uploadToBucket("backgrounds", user.id, compressedBlob);
       }
 
-      const finalForm = { ...form, photoUrl, backgroundUrl };
+      let logoUrl = form.logoUrl;
+      if (logoFile) {
+        // PNG, not JPEG, to keep the logo's transparent background intact.
+        const compressedBlob = await compressImage(logoFile, 400, 0.9, "image/png");
+        logoUrl = await uploadToBucket("logos", user.id, compressedBlob);
+      }
+
+      const finalForm = { ...form, photoUrl, backgroundUrl, logoUrl };
       const dbRow = formToDbRow(finalForm, user.id);
 
       if (cardId) {
@@ -283,7 +302,7 @@ function CardEditorPage() {
         {tab === "basic" && (
           <div className="bg-white rounded-xl2 shadow-card p-6 grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2 flex justify-center mb-2">
-              <ImageUploader currentImageUrl={form.photoUrl} onFileSelect={setPhotoFile} />
+              <ImageUploader currentImageUrl={form.photoUrl} onFileSelect={setPhotoFile} label="Upload Photo" />
             </div>
             <div className="md:col-span-2 flex flex-col items-center gap-2 mb-2">
               <label className="text-sm font-medium text-ink self-start">Card Background Image (optional)</label>
@@ -291,11 +310,25 @@ function CardEditorPage() {
                 currentImageUrl={form.backgroundUrl}
                 onFileSelect={setBackgroundFile}
                 shape="card"
+                label="Upload Background"
               />
               <p className="text-xs text-muted text-center max-w-xs">
                 This image fills the whole card behind your details, so it's shown here at roughly
                 your card's proportions. It's center-cropped, so keep the important part of the
                 photo near the middle.
+              </p>
+            </div>
+            <div className="md:col-span-2 flex flex-col items-center gap-2 mb-2">
+              <label className="text-sm font-medium text-ink self-start">Company Logo (optional)</label>
+              <ImageUploader
+                currentImageUrl={form.logoUrl}
+                onFileSelect={setLogoFile}
+                shape="logo"
+                label="Upload Logo"
+              />
+              <p className="text-xs text-muted text-center max-w-xs">
+                Shown at the top of your card. A transparent PNG works best - it's shown here at
+                its own proportions, not cropped. Leave this blank to keep the default company logo.
               </p>
             </div>
             <InputField label="Full Name *" name="fullName" value={form.fullName} onChange={handleChange} />
