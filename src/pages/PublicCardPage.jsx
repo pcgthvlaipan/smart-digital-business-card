@@ -267,7 +267,7 @@ function PublicCardPage() {
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
             rounded, shadowed container with no gap between them. */}
-        <div className="bg-white rounded-[20px] shadow-card overflow-hidden">
+        <div className="bg-[#F1F5F9] rounded-[20px] shadow-card overflow-hidden">
         <div
           ref={cardRef}
           className="relative bg-white"
@@ -360,7 +360,7 @@ function PublicCardPage() {
 
           {/* White panel: quick-action contact icons, address, about me,
               connect (social icons + QR code). */}
-          <div className="relative bg-white rounded-t-[28px] -mt-4 px-5 pt-5 pb-5">
+          <div className="relative bg-white rounded-[28px] -mt-4 px-5 pt-5 pb-5 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
             {quickActions.length > 0 && (
               <div className="pb-4 border-b border-[#EEF2F6]">
                 {/* Icons on one line, like before - just the colored circles,
@@ -469,7 +469,7 @@ function PublicCardPage() {
         {/* Actions: save contact, save as image - grouped together, in the
             same card section as the face above (just a border seam between
             them), directly under the QR code on the card. */}
-        <div className="relative z-10 border-t border-border p-5 flex flex-col items-center gap-3">
+        <div className="relative z-10 bg-[#F1F5F9] p-5 flex flex-col items-center gap-3">
           <div className="w-full flex gap-2.5">
             <button
               onClick={() =>
