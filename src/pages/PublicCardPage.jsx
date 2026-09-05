@@ -360,7 +360,7 @@ function PublicCardPage() {
 
           {/* White panel: quick-action contact icons, address, about me,
               connect (social icons + QR code). */}
-          <div className="relative bg-white rounded-[28px] -mt-4 mx-3 mb-3 px-5 pt-5 pb-5 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+          <div className="relative bg-white rounded-[28px] mx-3 mb-3 px-5 pt-5 pb-5 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
             {quickActions.length > 0 && (
               <div className="pb-4 border-b border-[#EEF2F6]">
                 {/* Icons on one line, like before - just the colored circles,
