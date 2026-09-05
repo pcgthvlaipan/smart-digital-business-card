@@ -202,7 +202,9 @@ function CardEditorPage() {
     try {
       let photoUrl = form.photoUrl;
       if (photoFile) {
-        const compressedBlob = await compressImage(photoFile, 300, 0.7);
+        // 300px/0.7 was too soft for a 158px circle on a retina phone screen
+        // (the photo needs 2-3x that many source pixels to look sharp there).
+        const compressedBlob = await compressImage(photoFile, 640, 0.85);
         photoUrl = await uploadToBucket("avatars", user.id, compressedBlob);
       }
 

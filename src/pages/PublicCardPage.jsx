@@ -218,25 +218,29 @@ function PublicCardPage() {
                 <rect width="100%" height="100%" fill="url(#dots)" />
               </svg>
             )}
-            <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
+            {/* In normal flow above the logo, not absolutely positioned over it,
+                so it can never sit on top of the logo regardless of logo size. */}
             {hasThai && (
-              <div className="absolute top-3 left-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setLang("en")}
-                  className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLang("th")}
-                  className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
-                >
-                  TH
-                </button>
+              <div className="relative flex justify-start mb-2">
+                <div className="inline-flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setLang("en")}
+                    className={`px-2 py-1 rounded-lg transition-colors ${lang === "en" ? "bg-navy text-white" : "text-navy"}`}
+                  >
+                    EN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLang("th")}
+                    className={`px-2 py-1 rounded-lg transition-colors ${lang === "th" ? "bg-navy text-white" : "text-navy"}`}
+                  >
+                    TH
+                  </button>
+                </div>
               </div>
             )}
+            <img src={pcgLogo} alt="Perfect Companion Group" className="relative h-9 mb-3 block" />
           </div>
 
           {/* Positioned against the outer card, not the header, so it can never
