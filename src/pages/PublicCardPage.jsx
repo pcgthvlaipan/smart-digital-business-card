@@ -51,6 +51,76 @@ function PublicCardPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lang, setLang] = useState("en");
+  const [isLightBg, setIsLightBg] = useState(false);
+  const [photoDataUrl, setPhotoDataUrl] = useState("");
+
+  // Pre-fetch the contact photo into a data URL while the page just sits
+  // open, rather than at click time: createVCard's photo fetch is async, and
+  // iOS Safari can refuse navigator.share() if too much async work (a
+  // network fetch included) happens between the tap and the share() call,
+  // since it no longer looks tied to the user gesture. Resolving this ahead
+  // of time means the click handler hits an instant data: URI, not a fetch.
+  useEffect(() => {
+    // Already usable as-is (no photo, or already a data URI) - nothing to
+    // pre-fetch, and the render-time fallback below covers this case.
+    if (!card?.photoUrl || card.photoUrl.startsWith("data:image")) return;
+    let cancelled = false;
+    fetch(card.photoUrl)
+      .then((res) => res.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          })
+      )
+      .then((dataUrl) => {
+        if (!cancelled) setPhotoDataUrl(dataUrl);
+      })
+      .catch((err) => console.error("Failed to pre-fetch contact photo:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [card?.photoUrl]);
+
+  // The navy block's text sits directly over the card's background image
+  // (default wallpaper or a user's own upload), so a light-colored custom
+  // background needs dark text instead of the usual white to stay readable.
+  useEffect(() => {
+    const bgUrl = card?.backgroundUrl || defaultWallpaper;
+    let cancelled = false;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      if (cancelled) return;
+      try {
+        const size = 24;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+        let total = 0;
+        const pixelCount = data.length / 4;
+        for (let i = 0; i < data.length; i += 4) {
+          total += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        }
+        setIsLightBg(total / pixelCount > 150);
+      } catch (err) {
+        // Cross-origin canvas tainting or any other read failure: keep the
+        // default (dark-background) styling rather than risk unreadable text.
+        console.error("Could not sample background brightness:", err);
+      }
+    };
+    img.onerror = () => {};
+    img.src = bgUrl;
+    return () => {
+      cancelled = true;
+    };
+  }, [card?.backgroundUrl]);
 
   useEffect(() => {
     const fetchCard = async () => {
@@ -168,6 +238,10 @@ function PublicCardPage() {
   const displayCompany = (lang === "th" && card.companyTh) || card.company;
   const displayBio = (lang === "th" && card.bioTh) || card.bio;
 
+  const textColor = isLightBg ? "#0B3D91" : "#FFFFFF";
+  const textColorMuted = isLightBg ? "rgba(11,61,145,0.72)" : "rgba(255,255,255,0.7)";
+  const textColorBio = isLightBg ? "rgba(11,61,145,0.8)" : "rgba(255,255,255,0.75)";
+
   const contactRows = [
     card.phone && { key: "call", label: card.phone, icon: Phone, href: formatPhoneLink(card.phone) },
     card.email && { key: "email", label: card.email, icon: Mail, href: formatEmailLink(card.email) },
@@ -227,15 +301,11 @@ function PublicCardPage() {
             />
           </div>
 
-          {/* Positioned against the outer card, not the header, so it can never
-              get clipped by the header's own (much shorter) content height. */}
-          <div className="absolute top-3 right-3 bg-white rounded-xl p-2 shadow-lg z-10">
-            <QRCodeSVG value={publicUrl} size={56} className="block" />
-          </div>
-
-          {/* Language toggle, directly under the QR code */}
+          {/* Language toggle, top right. Positioned against the outer card, not
+              the header, so it can never get clipped by the header's own
+              (much shorter) content height. */}
           {hasThai && (
-            <div className="absolute top-[92px] right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
+            <div className="absolute top-3 right-3 flex bg-white rounded-xl p-1 shadow-lg text-xs font-semibold z-10">
               <button
                 type="button"
                 onClick={() => setLang("en")}
@@ -286,18 +356,18 @@ function PublicCardPage() {
               <circle cx="50" cy="50" r="50" fill="#D9A441" />
             </svg>
 
-            <h1 className="relative text-lg font-semibold text-white text-center pb-[2px]">
+            <h1 className="relative text-lg font-semibold text-center pb-[2px]" style={{ color: textColor }}>
               {displayName}{card.nickname && ` (${card.nickname})`}
             </h1>
             <p className="relative text-[17px] font-semibold text-center pb-1" style={{ color: "#D9A441" }}>
               {displayJobTitle}
             </p>
             {displayCompany && (
-              <p className="relative text-[16px] text-white/70 text-center pb-4">{displayCompany}</p>
+              <p className="relative text-[16px] text-center pb-4" style={{ color: textColorMuted }}>{displayCompany}</p>
             )}
 
             {displayBio && (
-              <p className="relative text-xs text-white/75 italic text-center mb-4 leading-loose">
+              <p className="relative text-xs italic text-center mb-4 leading-loose" style={{ color: textColorBio }}>
                 {displayBio}
               </p>
             )}
@@ -313,7 +383,7 @@ function PublicCardPage() {
                     className="flex items-start gap-2.5"
                   >
                     <row.icon className="w-[15px] h-[15px] shrink-0 mt-0.5" style={{ color: "#D9A441" }} />
-                    <span className="text-[13px] text-white leading-[1.4]" style={{ whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
+                    <span className="text-[13px] leading-[1.4]" style={{ color: textColor, whiteSpace: row.wrap ? "normal" : "nowrap" }}>{row.label}</span>
                   </a>
                 ))}
 
@@ -355,8 +425,20 @@ function PublicCardPage() {
 
           {/* Save Contact button */}
           <div className={`relative z-10 px-5 pb-5 ${hasBackground ? "" : "bg-white"}`}>
+            {/* QR code, bottom right - in normal flow (not absolutely
+                positioned) so it can never overlap the button below it. */}
+            <div className="flex justify-end mb-3">
+              <div className="bg-white rounded-xl p-2 shadow-lg">
+                <QRCodeSVG value={publicUrl} size={56} className="block" />
+              </div>
+            </div>
             <button
-              onClick={() => createVCard(card)}
+              onClick={() =>
+                createVCard({
+                  ...card,
+                  photoUrl: card.photoUrl?.startsWith("data:image") ? card.photoUrl : photoDataUrl || card.photoUrl,
+                })
+              }
               className="w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-lg transition-opacity hover:opacity-90"
               style={{ background: "#D9A441", color: "#0B3D91" }}
             >

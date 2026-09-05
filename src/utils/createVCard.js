@@ -10,6 +10,29 @@ function foldLine(line, maxLength = 75) {
   return chunks.map((chunk, idx) => (idx === 0 ? chunk : " " + chunk)).join("\r\n");
 }
 
+// card.photoUrl is normally a remote Supabase Storage URL, not a data URI -
+// fetch and inline it as base64 so phones that don't follow a remote PHOTO
+// URL still actually get the picture on the imported contact.
+async function resolvePhotoDataUrl(photoUrl) {
+  if (!photoUrl) return null;
+  if (photoUrl.startsWith("data:image")) return photoUrl;
+
+  try {
+    const res = await fetch(photoUrl);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    console.error("Failed to embed contact photo in vCard:", err);
+    return null;
+  }
+}
+
 export async function createVCard(card) {
   const lines = [
     "BEGIN:VCARD",
@@ -23,8 +46,9 @@ export async function createVCard(card) {
     card.website ? `URL:${card.website}` : "",
   ];
 
-  if (card.photoUrl && card.photoUrl.startsWith("data:image")) {
-    const match = card.photoUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+  const photoDataUrl = await resolvePhotoDataUrl(card.photoUrl);
+  if (photoDataUrl) {
+    const match = photoDataUrl.match(/^data:image\/(\w+);base64,(.+)$/);
     if (match) {
       const imageType = match[1].toUpperCase();
       const base64Data = match[2];
