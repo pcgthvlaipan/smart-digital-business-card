@@ -222,10 +222,14 @@ function CardEditorPage() {
           .eq("id", cardId);
         if (updateError) throw updateError;
       } else {
-        const { error: insertError } = await supabase
+        // Upsert on user_id rather than a plain insert: if a card for this
+        // user already exists (a race from a double-submit, two open tabs,
+        // or a retried request), this updates that row instead of creating
+        // a duplicate. Requires the business_cards_user_id_unique constraint.
+        const { error: upsertError } = await supabase
           .from("business_cards")
-          .insert(dbRow);
-        if (insertError) throw insertError;
+          .upsert(dbRow, { onConflict: "user_id" });
+        if (upsertError) throw upsertError;
       }
 
       navigate("/dashboard");
