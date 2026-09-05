@@ -362,21 +362,41 @@ function PublicCardPage() {
               connect (social icons + QR code). */}
           <div className="relative bg-white rounded-t-[28px] -mt-4 px-5 pt-5 pb-5">
             {quickActions.length > 0 && (
-              <div className="flex flex-col gap-2.5 pb-4 border-b border-[#EEF2F6]">
-                {quickActions.map((action) => (
-                  <a
-                    key={action.key}
-                    href={action.href}
-                    target={action.external ? "_blank" : undefined}
-                    rel={action.external ? "noopener noreferrer" : undefined}
-                    className="flex items-center gap-3"
-                  >
-                    <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: action.bg }}>
+              <div className="pb-4 border-b border-[#EEF2F6]">
+                {/* Icons on one line, like before - just the colored circles,
+                    wrapping onto a second line rather than overlapping if
+                    there isn't room for all of them. */}
+                <div className="flex flex-wrap gap-2.5 mb-3">
+                  {quickActions.map((action) => (
+                    <a
+                      key={action.key}
+                      href={action.href}
+                      target={action.external ? "_blank" : undefined}
+                      rel={action.external ? "noopener noreferrer" : undefined}
+                      aria-label={action.label}
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: action.bg }}
+                    >
                       <action.icon className="w-4 h-4 text-white" />
-                    </span>
-                    <span className="text-[13px] font-medium text-slate-700 break-all">{action.label}</span>
-                  </a>
-                ))}
+                    </a>
+                  ))}
+                </div>
+
+                {/* Detail lines: the actual values, underneath the icon row. */}
+                <div className="flex flex-col gap-1.5">
+                  {quickActions.map((action) => (
+                    <a
+                      key={action.key}
+                      href={action.href}
+                      target={action.external ? "_blank" : undefined}
+                      rel={action.external ? "noopener noreferrer" : undefined}
+                      className="flex items-center gap-2"
+                    >
+                      <action.icon className="w-3.5 h-3.5 shrink-0" style={{ color: action.bg }} />
+                      <span className="text-[13px] font-medium text-slate-700 break-all">{action.label}</span>
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
 
