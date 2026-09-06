@@ -435,20 +435,6 @@ function PublicCardPage() {
                   backgroundPosition: "center",
                 }}
               />
-              {/* A plain white wash, not a CSS filter: html2canvas has zero
-                  support for the filter property (confirmed - it isn't
-                  parsed anywhere in its source), so a brightness() filter
-                  would lighten the live page but be silently dropped from
-                  the exported image. An overlay is just alpha-blended
-                  background color, which html2canvas already handles fine
-                  (the gradient below it relies on the same thing). */}
-              <div className="absolute inset-0 pointer-events-none z-0 bg-white/20" />
-              <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{
-                  background: "linear-gradient(180deg, rgba(233,111,61,0.28) 0%, rgba(255,255,255,0.05) 46%, rgba(23,32,51,0.12) 100%)",
-                }}
-              />
             </>
           )}
           {/* Simple header row: logo left, language toggle right. Same flex
@@ -483,7 +469,7 @@ function PublicCardPage() {
           {/* Photo, name, title, company - sits directly on the background
               image/wallpaper, so text color adapts to it (isLightBg). */}
           <div className="relative flex flex-col items-center px-5 pt-5 pb-7">
-            <div className="w-[161px] h-[161px] rounded-full bg-[#E96F3D] p-[4px] relative shadow-[0_12px_30px_rgba(23,32,51,0.22)]">
+            <div className="w-[161px] h-[161px] rounded-full bg-white p-[4px] relative shadow-[0_12px_30px_rgba(23,32,51,0.22)]">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
