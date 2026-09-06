@@ -175,9 +175,24 @@ function CardEditorPage() {
       setTab("basic");
       return;
     }
-    if (!form.email && !form.phone) {
-      setError("Please provide at least an email or phone number.");
+    if (!form.jobTitle) {
+      setError("Job title is required.");
       setTab("basic");
+      return;
+    }
+    if (!form.company) {
+      setError("Company name is required.");
+      setTab("basic");
+      return;
+    }
+    if (!form.phone) {
+      setError("Phone number is required.");
+      setTab("contact");
+      return;
+    }
+    if (!form.email) {
+      setError("Email is required.");
+      setTab("contact");
       return;
     }
     if (form.email && !isValidEmail(form.email)) {
@@ -276,7 +291,7 @@ function CardEditorPage() {
 
   return (
     <DashboardLayout user={user} onLogout={handleLogout}>
-      <h1 className="text-2xl font-bold text-navy mb-6">
+      <h1 className="text-2xl font-bold text-[#0B3D91] mb-6">
         {cardId ? "Edit Your Card" : "Create Your Card"}
       </h1>
 
@@ -291,8 +306,8 @@ function CardEditorPage() {
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               tab === t.key
-                ? "border-navy text-navy"
-                : "border-transparent text-muted hover:text-navy"
+                ? "border-[#0B3D91] text-[#0B3D91]"
+                : "border-transparent text-muted hover:text-[#0B3D91]"
             }`}
           >
             {t.label}
@@ -333,52 +348,52 @@ function CardEditorPage() {
                 its own proportions, not cropped. Leave this blank to keep the default company logo.
               </p>
             </div>
-            <InputField label="Full Name *" name="fullName" value={form.fullName} onChange={handleChange} />
-            <InputField label="Full Name (Thai)" name="fullNameTh" value={form.fullNameTh} onChange={handleChange} />
-            <InputField label="Job Title" name="jobTitle" value={form.jobTitle} onChange={handleChange} />
-            <InputField label="Job Title (Thai)" name="jobTitleTh" value={form.jobTitleTh} onChange={handleChange} />
-            <InputField label="Company" name="company" value={form.company} onChange={handleChange} />
-            <InputField label="Company (Thai)" name="companyTh" value={form.companyTh} onChange={handleChange} />
-            <InputField label="Nickname" name="nickname" value={form.nickname} onChange={handleChange} />
-            <InputField label="Department" name="department" value={form.department} onChange={handleChange} />
+            <InputField label="Full Name" required boxed name="fullName" value={form.fullName} onChange={handleChange} />
+            <InputField label="ชื่อ-นามสกุล" boxed name="fullNameTh" value={form.fullNameTh} onChange={handleChange} />
+            <InputField label="Job Title" required boxed name="jobTitle" value={form.jobTitle} onChange={handleChange} />
+            <InputField label="ตำแหน่ง" boxed name="jobTitleTh" value={form.jobTitleTh} onChange={handleChange} />
+            <InputField label="Company Name" required boxed name="company" value={form.company} onChange={handleChange} />
+            <InputField label="ชื่อบริษัท" boxed name="companyTh" value={form.companyTh} onChange={handleChange} />
+            <InputField label="Nickname" boxed name="nickname" value={form.nickname} onChange={handleChange} />
+            <InputField label="Department" boxed name="department" value={form.department} onChange={handleChange} />
             <div className="md:col-span-2">
-              <InputField label="Short Bio / Tagline" name="bio" value={form.bio} onChange={handleChange} />
+              <InputField label="Short Bio / Tagline" boxed name="bio" value={form.bio} onChange={handleChange} />
             </div>
             <div className="md:col-span-2">
-              <InputField label="Short Bio / Tagline (Thai)" name="bioTh" value={form.bioTh} onChange={handleChange} />
+              <InputField label="แนะนำตัวสั้นๆ" boxed name="bioTh" value={form.bioTh} onChange={handleChange} />
             </div>
           </div>
         )}
 
         {tab === "contact" && (
           <div className="bg-white rounded-xl2 shadow-card p-6 grid md:grid-cols-2 gap-4">
-            <InputField label="Phone Number" name="phone" value={form.phone} onChange={handleChange} placeholder="+66812345678" />
-            <InputField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
-            <InputField label="Email 2 (optional)" name="email2" type="email" value={form.email2} onChange={handleChange} />
-            <InputField label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://yourcompany.com" />
-            <InputField label="Company Address" name="address" value={form.address} onChange={handleChange} />
+            <InputField label="Phone Number" required boxed name="phone" value={form.phone} onChange={handleChange} placeholder="+66812345678" />
+            <InputField label="Email" required boxed name="email" type="email" value={form.email} onChange={handleChange} />
+            <InputField label="Email 2 (optional)" boxed name="email2" type="email" value={form.email2} onChange={handleChange} />
+            <InputField label="Website" boxed name="website" value={form.website} onChange={handleChange} placeholder="https://yourcompany.com" />
+            <InputField label="Company Address" boxed name="address" value={form.address} onChange={handleChange} />
           </div>
         )}
 
         {tab === "social" && (
           <div className="bg-white rounded-xl2 shadow-card p-6 grid md:grid-cols-2 gap-4">
-            <InputField label="LINE ID" name="lineId" value={form.lineId} onChange={handleChange} placeholder="your.line.id" />
-            <InputField label="LINE URL (optional)" name="lineUrl" value={form.lineUrl} onChange={handleChange} placeholder="https://line.me/ti/p/..." />
-            <InputField label="WeChat ID" name="wechatId" value={form.wechatId} onChange={handleChange} />
-            <InputField label="WhatsApp Number" name="whatsappNumber" value={form.whatsappNumber} onChange={handleChange} placeholder="+66812345678" />
-            <InputField label="Facebook URL" name="facebookUrl" value={form.facebookUrl} onChange={handleChange} />
-            <InputField label="Instagram URL" name="instagramUrl" value={form.instagramUrl} onChange={handleChange} />
-            <InputField label="LinkedIn URL" name="linkedinUrl" value={form.linkedinUrl} onChange={handleChange} />
-            <InputField label="TikTok URL" name="tiktokUrl" value={form.tiktokUrl} onChange={handleChange} />
-            <InputField label="YouTube URL" name="youtubeUrl" value={form.youtubeUrl} onChange={handleChange} />
-            <InputField label="Google Maps Link" name="googleMapsUrl" value={form.googleMapsUrl} onChange={handleChange} />
+            <InputField label="LINE ID" boxed name="lineId" value={form.lineId} onChange={handleChange} placeholder="your.line.id" />
+            <InputField label="LINE URL (optional)" boxed name="lineUrl" value={form.lineUrl} onChange={handleChange} placeholder="https://line.me/ti/p/..." />
+            <InputField label="WeChat ID" boxed name="wechatId" value={form.wechatId} onChange={handleChange} />
+            <InputField label="WhatsApp Number" boxed name="whatsappNumber" value={form.whatsappNumber} onChange={handleChange} placeholder="+66812345678" />
+            <InputField label="Facebook URL" boxed name="facebookUrl" value={form.facebookUrl} onChange={handleChange} />
+            <InputField label="Instagram URL" boxed name="instagramUrl" value={form.instagramUrl} onChange={handleChange} />
+            <InputField label="LinkedIn URL" boxed name="linkedinUrl" value={form.linkedinUrl} onChange={handleChange} />
+            <InputField label="TikTok URL" boxed name="tiktokUrl" value={form.tiktokUrl} onChange={handleChange} />
+            <InputField label="YouTube URL" boxed name="youtubeUrl" value={form.youtubeUrl} onChange={handleChange} />
+            <InputField label="Google Maps Link" boxed name="googleMapsUrl" value={form.googleMapsUrl} onChange={handleChange} />
           </div>
         )}
 
         {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
 
         <div className="flex gap-3 mt-6">
-          <Button type="submit" variant="primary" disabled={saving}>
+          <Button type="submit" variant="brand" disabled={saving}>
             {saving ? "Saving..." : "Save Card"}
           </Button>
           <Button type="button" variant="ghost" onClick={() => navigate("/dashboard")}>
