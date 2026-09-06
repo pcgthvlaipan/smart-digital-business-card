@@ -191,11 +191,6 @@ function PublicCardPage() {
         card.logoUrl ? preloadImage(card.logoUrl) : Promise.resolve(null),
       ]);
 
-      // Measured before capture, in CSS px relative to the card - used after
-      // capture to redraw the photo at full quality (see below).
-      const cardRectForPhoto = cardRef.current.getBoundingClientRect();
-      const photoRectForPhoto = photoRef.current?.getBoundingClientRect();
-
       // Ensure all custom fonts are fully loaded before measuring/rendering text
       if (document.fonts && document.fonts.ready) {
         await document.fonts.ready;
@@ -203,6 +198,14 @@ function PublicCardPage() {
 
       // Extra delay to ensure browser has fully painted everything
       await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Measured right before capture (after font loading/layout has
+      // settled, not before it) - used after capture to redraw the photo at
+      // full quality (see below). Measuring earlier risked a layout shift
+      // (e.g. from a webfont swapping in) drifting the photo's position out
+      // of sync with where it ends up in the captured image.
+      const cardRectForPhoto = cardRef.current.getBoundingClientRect();
+      const photoRectForPhoto = photoRef.current?.getBoundingClientRect();
 
       const captureScale = 4;
       const canvas = await html2canvas(cardRef.current, {
@@ -244,6 +247,11 @@ function PublicCardPage() {
         const h = photoRectForPhoto.height * captureScale;
         if (ctx && w > 0 && h > 0) {
           ctx.save();
+          // Reset any transform html2canvas left on this context - our x/y/w/h
+          // are already in final canvas-pixel space, computed independently
+          // via captureScale, so drawing under a leftover transform would
+          // apply that scaling twice and throw the photo's position/size off.
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
           ctx.beginPath();
