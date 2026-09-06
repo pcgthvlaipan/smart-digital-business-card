@@ -1,3 +1,5 @@
+import { formatLineUrl } from "./formatLinks";
+
 function foldLine(line, maxLength = 75) {
   if (line.length <= maxLength) return line;
   const chunks = [];
@@ -71,7 +73,7 @@ export async function createVCard(card) {
     card.youtubeUrl ? `URL:${esc(card.youtubeUrl)}` : "",
     card.googleMapsUrl ? `URL:${esc(card.googleMapsUrl)}` : "",
     card.whatsappNumber ? `URL:${esc(waUrl(card.whatsappNumber))}` : "",
-    card.lineUrl || card.lineId ? `URL:${esc(card.lineUrl || `https://line.me/ti/p/${card.lineId}`)}` : "",
+    card.lineUrl || card.lineId ? `URL:${esc(formatLineUrl(card.lineId, card.lineUrl))}` : "",
   ];
 
   // WeChat has no public profile URL to link to, so it goes in NOTE instead,

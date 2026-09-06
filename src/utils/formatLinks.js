@@ -6,7 +6,14 @@ export function formatWhatsApp(phone) {
 
 export function formatLineUrl(lineId, lineUrl) {
   if (lineUrl) return lineUrl;
-  if (lineId) return `https://line.me/ti/p/${lineId}`;
+  if (lineId) {
+    // LINE's official "add friend by ID" link requires a leading ~ for a
+    // personal LINE ID (as opposed to @ for an Official Account) - without
+    // it, LINE resolves the URL as looking for a different, literal ID and
+    // shows "User not found" even though the ID itself is correct.
+    const trimmed = lineId.trim().replace(/^[~@]/, "");
+    return `https://line.me/ti/p/~${trimmed}`;
+  }
   return "";
 }
 

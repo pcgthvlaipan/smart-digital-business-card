@@ -5,7 +5,7 @@ import { supabase } from "../supabase/supabaseClient";
 import { Phone, Mail, Globe, MapPin, Download, Image as ImageIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
-import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
+import { formatPhoneLink, formatEmailLink, formatLineUrl } from "../utils/formatLinks";
 import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIcons";
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
@@ -407,7 +407,7 @@ function PublicCardPage() {
     card.facebookUrl && { key: "fb", href: card.facebookUrl, bg: "#1877F2", label: "f" },
     card.instagramUrl && { key: "ig", href: card.instagramUrl, bg: "linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4)", label: "ig" },
     card.whatsappNumber && { key: "wa", href: `https://wa.me/${card.whatsappNumber.replace(/[^\d]/g, "")}`, bg: "#25D366", type: "whatsapp" },
-    (card.lineId || card.lineUrl) && { key: "line", href: card.lineUrl || `https://line.me/ti/p/${card.lineId}`, bg: "#06C755", type: "line" },
+    (card.lineId || card.lineUrl) && { key: "line", href: formatLineUrl(card.lineId, card.lineUrl), bg: "#06C755", type: "line" },
     card.wechatId && { key: "wechat", href: null, bg: "#2DC100", type: "wechat" },
   ].filter(Boolean);
 
