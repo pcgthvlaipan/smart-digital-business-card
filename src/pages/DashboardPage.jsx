@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase/supabaseClient";
-import { useAuth } from "../firebase/AuthContext";
+import { useAuth } from "../firebase/AuthContextValue";
 import DashboardLayout from "../components/DashboardLayout";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
-import QRCodeBox from "../components/QRCodeBox";
 
 function DashboardPage() {
   const { user, loading } = useAuth();
@@ -41,18 +40,6 @@ function DashboardPage() {
     };
     fetchCard();
   }, [user]);
-
-  const handleDelete = async () => {
-    if (!card) return;
-    const confirmed = window.confirm("Delete your business card? This cannot be undone.");
-    if (!confirmed) return;
-    const { error } = await supabase.from("business_cards").delete().eq("id", card.id);
-    if (error) {
-      console.error("Error deleting card:", error);
-      return;
-    }
-    setCard(null);
-  };
 
   const handleLogout = () => supabase.auth.signOut();
 

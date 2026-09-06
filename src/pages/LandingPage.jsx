@@ -5,6 +5,8 @@ import { db } from "../firebase/firebaseConfig";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
 import {
+  ArrowUpRight,
+  Check,
   QrCode,
   Share2,
   Smartphone,
@@ -38,56 +40,69 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="landing-page min-h-screen bg-surface">
       {/* Nav */}
-      <nav className="w-full border-b border-border bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="font-bold text-lg text-navy">Smart Digital Card</span>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-medium text-ink hover:text-navy">
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="bg-navy text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-navy-light transition-colors"
-            >
-              Get Started
+      <nav className="landing-nav">
+        <div className="landing-shell landing-nav-inner">
+          <Link to="/" className="brand-lockup" aria-label="Smart Digital Card home">
+            <span className="brand-mark">S</span>
+            <span>
+              <strong>Smart Digital</strong>
+              <small>Business Card</small>
+            </span>
+          </Link>
+          <div className="landing-nav-actions">
+            <span className="nav-status"><span /> Always ready to share</span>
+            <Link to="/login" className="nav-login">Sign in</Link>
+            <Link to="/register" className="nav-cta">
+              Get started <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-navy leading-tight mb-6">
-            Create Your Smart Digital Business Card
-          </h1>
-          <p className="text-lg text-muted mb-8 max-w-md">
-            Build a premium digital profile in minutes. Share your contact details,
-            social links, and more with a single tap, link, or QR code.
-          </p>
-          <Link to="/register">
-            <Button variant="accent" className="text-base px-8 py-4">
-              Create My Card
-            </Button>
-          </Link>
-        </div>
-
-        <div className="flex justify-center">
-          <div className="scale-95">
-            <CardPreview card={previewCard} />
+      <main>
+        <section className="landing-shell landing-hero">
+          <div className="landing-hero-copy">
+            <p className="eyebrow"><span /> Your professional identity, in one place</p>
+            <h1>Make every introduction <em>memorable.</em></h1>
+            <p className="hero-lede">
+              A beautifully simple digital business card for people who move between
+              conversations, cities, and opportunities.
+            </p>
+            <div className="hero-actions">
+              <Link to="/register">
+                <Button variant="accent" className="hero-primary">
+                  Create my card <ArrowUpRight size={18} aria-hidden="true" />
+                </Button>
+              </Link>
+              <a className="hero-text-link" href="#why-digital">
+                See how it works <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+            <div className="hero-proof">
+              <div className="proof-avatars" aria-hidden="true"><span>J</span><span>M</span><span>A</span></div>
+              <span><strong>Built for modern professionals</strong><br />Share your details without the paper trail.</span>
+            </div>
           </div>
-        </div>
-      </section>
+
+          <div className="hero-card-stage" aria-label="Example digital business card preview">
+            <div className="stage-note stage-note-top"><Check size={14} /> One link. Every detail.</div>
+            <div className="stage-card"><CardPreview card={previewCard} /></div>
+            <div className="stage-note stage-note-bottom"><QrCode size={16} /> Scan, save, connect</div>
+          </div>
+        </section>
 
       {/* Benefits */}
-      <section className="bg-white border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="text-2xl font-bold text-navy text-center mb-12">
-            Why go digital?
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section id="why-digital" className="benefits-section">
+        <div className="landing-shell">
+          <div className="section-heading">
+            <p className="eyebrow">The better business card</p>
+            <h2>Designed for the moment<br /><em>after hello.</em></h2>
+            <p>Everything people need to remember you, presented with clarity and care.</p>
+          </div>
+          <div className="benefits-grid">
             <Benefit
               icon={Smartphone}
               title="Always up to date"
@@ -113,31 +128,30 @@ function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-6xl mx-auto px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold text-navy mb-4">
-          Ready to make your mark?
-        </h2>
-        <p className="text-muted mb-8">
-          Join professionals who've already gone digital with their business card.
-        </p>
+      <section className="landing-shell landing-cta">
+        <div>
+          <p className="eyebrow">Your next introduction starts here</p>
+          <h2>Make your name<br /><em>easy to remember.</em></h2>
+        </div>
         <Link to="/register">
-          <Button variant="primary" className="text-base px-8 py-4">
-            Create My Card
+          <Button variant="primary" className="hero-primary">
+            Create my card <ArrowUpRight size={18} aria-hidden="true" />
           </Button>
         </Link>
       </section>
+      </main>
     </div>
   );
 }
 
 function Benefit({ icon: Icon, title, description }) {
   return (
-    <div className="text-center">
-      <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center mx-auto mb-4">
-        <Icon className="w-6 h-6 text-navy" />
+    <div className="benefit-item">
+      <div className="benefit-icon">
+        <Icon size={20} aria-hidden="true" />
       </div>
-      <h3 className="font-semibold text-navy mb-2">{title}</h3>
-      <p className="text-sm text-muted">{description}</p>
+      <h3>{title}</h3>
+      <p>{description}</p>
     </div>
   );
 }
