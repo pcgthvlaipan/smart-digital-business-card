@@ -518,10 +518,14 @@ function PublicCardPage() {
                       target={action.external ? "_blank" : undefined}
                       rel={action.external ? "noopener noreferrer" : undefined}
                       aria-label={action.label}
-                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: action.bg }}
+                      className="rounded-full flex items-center justify-center shrink-0"
+                      style={
+                        action.key === "call"
+                          ? { background: action.bg, width: "46px", height: "46px" }
+                          : { background: action.bg, width: "40px", height: "40px" }
+                      }
                     >
-                      <action.icon className="w-4 h-4 text-white" />
+                      <action.icon className={action.key === "call" ? "w-[18px] h-[18px] text-white" : "w-4 h-4 text-white"} />
                     </a>
                   ))}
                 </div>
