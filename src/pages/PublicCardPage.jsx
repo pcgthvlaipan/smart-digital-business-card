@@ -412,8 +412,8 @@ function PublicCardPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen py-10 px-2 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
-      <div className="w-full max-w-[460px] mx-auto">
+    <div className="min-h-screen py-10 px-4 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
+      <div className="w-full max-w-[380px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
             rounded, shadowed container with no gap between them. */}
