@@ -8,6 +8,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import CardEditorPage from "./pages/CardEditorPage";
 import PublicCardPage from "./pages/PublicCardPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -23,10 +24,11 @@ function App() {
           <Route path="/editor" element={<CardEditorPage />} />
           <Route path="/editor/:cardId" element={<CardEditorPage />} />
           <Route path="/card/:cardId" element={<PublicCardPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
 }
 
-export default App;2
+export default App;

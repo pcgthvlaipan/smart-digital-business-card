@@ -170,30 +170,19 @@ function CardEditorPage() {
     e.preventDefault();
     setError("");
 
-    if (!form.fullName) {
-      setError("Full name is required.");
-      setTab("basic");
-      return;
-    }
-    if (!form.jobTitle) {
-      setError("Job title is required.");
-      setTab("basic");
-      return;
-    }
-    if (!form.company) {
-      setError("Company name is required.");
-      setTab("basic");
-      return;
-    }
-    if (!form.phone) {
-      setError("Phone number is required.");
-      setTab("contact");
-      return;
-    }
-    if (!form.email) {
-      setError("Email is required.");
-      setTab("contact");
-      return;
+    const requiredFields = [
+      { key: "fullName", label: "Full name", tab: "basic" },
+      { key: "jobTitle", label: "Job title", tab: "basic" },
+      { key: "company", label: "Company name", tab: "basic" },
+      { key: "phone", label: "Phone number", tab: "contact" },
+      { key: "email", label: "Email", tab: "contact" },
+    ];
+    for (const { key, label, tab } of requiredFields) {
+      if (!form[key]) {
+        setError(`${label} is required.`);
+        setTab(tab);
+        return;
+      }
     }
     if (form.email && !isValidEmail(form.email)) {
       setError("Please enter a valid email address.");
@@ -319,11 +308,17 @@ function CardEditorPage() {
         {tab === "basic" && (
           <div className="bg-white rounded-xl2 shadow-card p-6 grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2 flex justify-center mb-2">
-              <ImageUploader currentImageUrl={form.photoUrl} onFileSelect={setPhotoFile} label="Upload Photo" />
+              <ImageUploader
+                key={`photo-${cardId || "new"}`}
+                currentImageUrl={form.photoUrl}
+                onFileSelect={setPhotoFile}
+                label="Upload Photo"
+              />
             </div>
             <div className="md:col-span-2 flex flex-col items-center gap-2 mb-2">
               <label className="text-sm font-medium text-ink self-start">Card Background Image (optional)</label>
               <ImageUploader
+                key={`background-${cardId || "new"}`}
                 currentImageUrl={form.backgroundUrl}
                 onFileSelect={setBackgroundFile}
                 shape="card"
@@ -338,6 +333,7 @@ function CardEditorPage() {
             <div className="md:col-span-2 flex flex-col items-center gap-2 mb-2">
               <label className="text-sm font-medium text-ink self-start">Company Logo (optional)</label>
               <ImageUploader
+                key={`logo-${cardId || "new"}`}
                 currentImageUrl={form.logoUrl}
                 onFileSelect={setLogoFile}
                 shape="logo"

@@ -59,8 +59,15 @@ function InstallPrompt() {
 
   const handleInstall = async () => {
     if (!installEvent) return;
-    installEvent.prompt();
-    await installEvent.userChoice;
+    try {
+      installEvent.prompt();
+      await installEvent.userChoice;
+    } catch (err) {
+      // A stale/already-consumed event can throw/reject depending on the
+      // browser - fall through to clearing it either way so the button
+      // doesn't stay stuck showing an install that can no longer happen.
+      console.error("Install prompt failed:", err);
+    }
     setInstallEvent(null);
   };
 

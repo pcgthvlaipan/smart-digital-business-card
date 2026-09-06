@@ -17,7 +17,11 @@ function CardPreview({ card: rawRow }) {
   const isLightBg = useIsLightBackground(card?.backgroundUrl || defaultWallpaper);
 
   if (!card) return null;
-  const publicUrl = `${window.location.origin}/card/${card.id}`;
+  // The landing page's fictional demo card ("sample") has no real row to
+  // link to - point its QR/link at the app itself rather than a dead
+  // /card/sample lookup.
+  const publicUrl =
+    card.id === "sample" ? window.location.origin : `${window.location.origin}/card/${card.id}`;
 
   const copyWeChat = () => {
     navigator.clipboard.writeText(card.wechatId);

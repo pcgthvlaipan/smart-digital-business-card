@@ -138,6 +138,9 @@ function mapSupabaseError(message) {
   if (message.includes("Password should be")) {
     return "Password is too weak.";
   }
+  if (message.includes("invalid")) {
+    return "Please enter a valid email address.";
+  }
   return "Something went wrong. Please try again.";
 }
 

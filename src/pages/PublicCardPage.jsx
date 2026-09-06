@@ -5,6 +5,7 @@ import { supabase } from "../supabase/supabaseClient";
 import { Download, Image as ImageIcon } from "lucide-react";
 import { createVCard } from "../utils/createVCard";
 import { dbRowToCard } from "../utils/cardData";
+import { baseManifest } from "../utils/appManifest";
 import { useIsLightBackground } from "../hooks/useBackgroundBrightness";
 import CardFace from "../components/CardFace";
 import InstallPrompt from "../components/InstallPrompt";
@@ -58,24 +59,23 @@ function PublicCardPage() {
   // instead of this exact card. Swapping in a Blob-backed manifest whose
   // start_url is this card's own URL (while this page is open) fixes that,
   // restored on unmount so every other page keeps the default manifest.
+  // Built synchronously from the shared JS object (no fetch of the static
+  // file) - besides skipping a network round-trip on every card view, this
+  // also avoids a real race the old fetch-based version had: an in-flight
+  // fetch could still resolve and overwrite the href *after* a fast
+  // navigation's cleanup had already restored it.
   useEffect(() => {
     const link = document.querySelector('link[rel="manifest"]');
     if (!link) return;
     const originalHref = link.getAttribute("href");
-    let blobUrl;
-    fetch(originalHref)
-      .then((res) => res.json())
-      .then((manifest) => {
-        const perCardManifest = { ...manifest, start_url: window.location.pathname };
-        blobUrl = URL.createObjectURL(
-          new Blob([JSON.stringify(perCardManifest)], { type: "application/manifest+json" })
-        );
-        link.setAttribute("href", blobUrl);
-      })
-      .catch((err) => console.error("Could not set up per-card install manifest:", err));
+    const perCardManifest = { ...baseManifest, start_url: window.location.pathname };
+    const blobUrl = URL.createObjectURL(
+      new Blob([JSON.stringify(perCardManifest)], { type: "application/manifest+json" })
+    );
+    link.setAttribute("href", blobUrl);
     return () => {
       link.setAttribute("href", originalHref);
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      URL.revokeObjectURL(blobUrl);
     };
   }, [cardId]);
 
