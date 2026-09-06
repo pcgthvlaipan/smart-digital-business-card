@@ -112,7 +112,7 @@ function PublicCardPage() {
   const photoRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("th");
   const [isLightBg, setIsLightBg] = useState(false);
   const [photoDataUrl, setPhotoDataUrl] = useState("");
 
@@ -450,17 +450,17 @@ function PublicCardPage() {
               <div className="flex rounded-full overflow-hidden shadow-lg text-[11px] font-semibold shrink-0">
                 <button
                   type="button"
-                  onClick={() => setLang("en")}
-                  className={`px-3 py-1.5 transition-colors ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
                   onClick={() => setLang("th")}
                   className={`px-3 py-1.5 transition-colors ${lang === "th" ? "bg-navy text-white" : "bg-white text-navy"}`}
                 >
                   TH
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("en")}
+                  className={`px-3 py-1.5 transition-colors ${lang === "en" ? "bg-navy text-white" : "bg-white text-navy"}`}
+                >
+                  EN
                 </button>
               </div>
             )}
@@ -608,6 +608,13 @@ function PublicCardPage() {
               onClick={() =>
                 createVCard({
                   ...card,
+                  // Saved contact matches whichever language is currently
+                  // displayed (falls back to the base fields automatically
+                  // when a Thai variant isn't set, same as the on-screen text).
+                  fullName: displayName,
+                  jobTitle: displayJobTitle,
+                  company: displayCompany,
+                  bio: displayBio,
                   photoUrl: card.photoUrl?.startsWith("data:image") ? card.photoUrl : photoDataUrl || card.photoUrl,
                 })
               }
