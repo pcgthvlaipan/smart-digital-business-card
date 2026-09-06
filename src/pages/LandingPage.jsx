@@ -61,8 +61,8 @@ function LandingPage() {
           </Link>
           <div className="landing-nav-actions">
             <span className="nav-status"><span /> Always ready to share</span>
-            <a href={shareEmailHref} className="nav-share" aria-label="Share via email" title="Share via email">
-              <Mail size={18} aria-hidden="true" />
+            <a href={shareEmailHref} className="nav-share" title="Share via email">
+              <Mail size={16} aria-hidden="true" /> Share
             </a>
             <Link to="/login" className="nav-login">Sign in</Link>
             <Link to="/register" className="nav-cta">
