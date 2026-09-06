@@ -7,6 +7,7 @@ import { createVCard } from "../utils/createVCard";
 import { dbRowToCard } from "../utils/cardData";
 import { useIsLightBackground } from "../hooks/useBackgroundBrightness";
 import CardFace from "../components/CardFace";
+import InstallPrompt from "../components/InstallPrompt";
 import defaultWallpaper from "../assets/wall2.png";
 
 function PublicCardPage() {
@@ -50,6 +51,33 @@ function PublicCardPage() {
       cancelled = true;
     };
   }, [card?.photoUrl]);
+
+  // Android/Chrome's install prompt launches whatever start_url the page's
+  // manifest declares - the static one in index.html points at "/", so
+  // installing straight from here would reopen the generic homepage
+  // instead of this exact card. Swapping in a Blob-backed manifest whose
+  // start_url is this card's own URL (while this page is open) fixes that,
+  // restored on unmount so every other page keeps the default manifest.
+  useEffect(() => {
+    const link = document.querySelector('link[rel="manifest"]');
+    if (!link) return;
+    const originalHref = link.getAttribute("href");
+    let blobUrl;
+    fetch(originalHref)
+      .then((res) => res.json())
+      .then((manifest) => {
+        const perCardManifest = { ...manifest, start_url: window.location.pathname };
+        blobUrl = URL.createObjectURL(
+          new Blob([JSON.stringify(perCardManifest)], { type: "application/manifest+json" })
+        );
+        link.setAttribute("href", blobUrl);
+      })
+      .catch((err) => console.error("Could not set up per-card install manifest:", err));
+    return () => {
+      link.setAttribute("href", originalHref);
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [cardId]);
 
   useEffect(() => {
     const fetchCard = async ({ showLoading } = {}) => {
@@ -323,6 +351,7 @@ function PublicCardPage() {
 
         <p className="text-center text-xs text-muted/70 mt-5">Powered by Smart Digital Card</p>
       </div>
+      <InstallPrompt />
     </div>
   );
 }
