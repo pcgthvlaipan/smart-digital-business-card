@@ -83,7 +83,14 @@ body {
 .hero-card-stage { position: relative; min-height: 380px; display: grid; place-items: center; }
 .hero-card-stage::before { content: ""; position: absolute; width: min(300px, 80%); aspect-ratio: 1; border: 1px solid rgba(249, 115, 22, 0.35); border-radius: 50%; box-shadow: 0 0 0 20px rgba(249, 115, 22, 0.06), 0 0 0 40px rgba(249, 115, 22, 0.035); }
 .stage-card { position: relative; z-index: 1; transform: rotate(3deg); transition: transform 300ms ease; }.stage-card:hover { transform: rotate(0deg) translateY(-5px); }
-.stage-card > div { max-width: 230px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.16); }
+/* The card's own internal layout uses fixed pixel sizes (photo circle,
+   padding, type) tuned for its real ~380px width - they don't shrink just
+   because a max-width narrows the box, which is what made an earlier,
+   narrower max-width look tall and squeezed instead of simply smaller.
+   zoom (unlike transform: scale) shrinks the actual layout box too, so the
+   parent correctly reserves the smaller space and the card just looks like
+   a proportional miniature of the real thing. */
+.stage-card > div { width: 380px; zoom: 0.62; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.16); }
 .stage-note { position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--landing-line); border-radius: 7px; background: rgba(255,255,255,0.9); color: var(--landing-muted); box-shadow: 0 10px 28px rgba(23,32,51,0.08); font-size: 11px; font-weight: 700; }
 .stage-note svg { color: var(--landing-orange); }.stage-note-top { top: 42px; right: 2px; }.stage-note-bottom { bottom: 45px; left: 2px; }
 
@@ -103,7 +110,7 @@ body {
 
 @media (max-width: 520px) {
   .landing-nav-inner { min-height: 68px; }.landing-nav-actions { gap: 13px; }.nav-login { display: none; }.nav-cta { padding: 10px 12px; }
-  .landing-hero h1 { font-size: 2.4rem; }.hero-lede { font-size: 15px; }.hero-actions { align-items: start; flex-direction: column; gap: 18px; }.hero-proof { margin-top: 38px; }.hero-card-stage { min-height: 280px; }.stage-card > div { max-width: 190px; }.stage-note { font-size: 10px; }.stage-note-top { top: 12px; }.stage-note-bottom { bottom: 12px; }
+  .landing-hero h1 { font-size: 2.4rem; }.hero-lede { font-size: 15px; }.hero-actions { align-items: start; flex-direction: column; gap: 18px; }.hero-proof { margin-top: 38px; }.hero-card-stage { min-height: 280px; }.stage-card > div { zoom: 0.5; }.stage-note { font-size: 10px; }.stage-note-top { top: 12px; }.stage-note-bottom { bottom: 12px; }
   .benefits-section { padding-block: 68px; }.benefits-grid { grid-template-columns: 1fr; }.benefit-item, .benefit-item + .benefit-item { min-height: 0; padding: 24px 0; border-right: 0; }.benefit-item:first-child { border-top: 0; }.benefit-item:nth-child(2) { border-top: 1px solid var(--landing-line); }.benefit-item:nth-child(3) { border-top: 1px solid var(--landing-line); }
 }
 

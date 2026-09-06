@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
+import VersionFooter from "../components/VersionFooter";
 import sampleAvatar from "../assets/sample-avatar.png";
 import {
   ArrowUpRight,
@@ -150,6 +151,9 @@ function LandingPage() {
         </Link>
       </section>
       </main>
+      <footer className="landing-shell" style={{ padding: "24px 0 32px", textAlign: "center" }}>
+        <VersionFooter />
+      </footer>
     </div>
   );
 }
