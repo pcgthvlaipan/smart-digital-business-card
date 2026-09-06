@@ -2,10 +2,24 @@ import { useState } from "react";
 
 function ImageUploader({ currentImageUrl, onFileSelect, shape = "circle", label = "Upload Photo" }) {
   const [preview, setPreview] = useState(currentImageUrl || null);
+  const [hasLocalFile, setHasLocalFile] = useState(false);
+  const [lastSyncedUrl, setLastSyncedUrl] = useState(currentImageUrl);
+
+  // currentImageUrl starts empty and only arrives after the editor's async
+  // fetch of the existing card resolves - useState's initial value alone
+  // would miss that update entirely and leave the existing photo/background/
+  // logo looking blank. Adjusted here during render (React's recommended
+  // way to sync state to a changed prop) rather than in an effect, but not
+  // over a file the person just picked themselves in this session.
+  if (currentImageUrl !== lastSyncedUrl) {
+    setLastSyncedUrl(currentImageUrl);
+    if (!hasLocalFile) setPreview(currentImageUrl || null);
+  }
 
   const handleChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setHasLocalFile(true);
     setPreview(URL.createObjectURL(file));
     onFileSelect?.(file);
   };
