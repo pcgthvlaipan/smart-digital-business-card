@@ -10,6 +10,59 @@ import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIco
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
 
+// Raw path data for the detail-row icons (copied from lucide-react's own
+// source), used to build a single combined icon+text <svg> per row. This
+// isn't cosmetic: html2canvas rasterizes a standalone <svg> by converting it
+// to an image and letting the real browser render it, rather than painting
+// its text itself - which is what fixes the icon/text drift, since
+// html2canvas paints ordinary HTML text using its own approximate font
+// metrics instead of the browser's real ones.
+const DETAIL_ICON_PATHS = {
+  phone: (
+    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+  ),
+  mail: (
+    <>
+      <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+    </>
+  ),
+  mapPin: (
+    <>
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </>
+  ),
+};
+
+// Icon + label as one inline SVG, not separate HTML elements - see
+// DETAIL_ICON_PATHS above for why. No viewBox (so 1 unit = 1 css px, no
+// scale-driven distortion) and overflow:visible (so text isn't clipped to
+// the nominal width - nothing sits to its right within these rows).
+// Single-line only: no <foreignObject>-based wrapping here, deliberately -
+// that's the exact mechanism a full SVG-export attempt showed can break
+// "Save Image" outright on Safari, so it's not worth reintroducing even
+// scoped to one row. The address line (which does wrap) stays plain HTML.
+function DetailRowSvg({ iconType, iconColor, label }) {
+  return (
+    <svg width="20" height="20" style={{ overflow: "visible", display: "block" }}>
+      <g transform="translate(1,1) scale(0.583)" stroke={iconColor} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        {DETAIL_ICON_PATHS[iconType]}
+      </g>
+      <text x="24" y="15" fontSize="13" fontWeight="500" fill="#334155" fontFamily="Inter, 'Noto Sans Thai', system-ui, sans-serif">
+        {label}
+      </text>
+    </svg>
+  );
+}
+
 function dbRowToCard(row) {
   return {
     id: row.id,
@@ -216,14 +269,14 @@ function PublicCardPage() {
         scrollY: -window.scrollY,
         windowWidth: document.documentElement.scrollWidth,
         windowHeight: document.documentElement.scrollHeight,
-        // html2canvas measures each element's real position correctly, but it
-        // estimates where to paint TEXT glyphs within that box using its own
-        // font-metrics guess rather than the browser's actual rendering - with
-        // a webfont (Inter/Noto Sans Thai) that estimate can drift, which is
-        // why an icon can look right while the text next to it renders shifted
-        // in the exported image even though live rendering looks fine. This
-        // nudges the icons down in the clone used only for capture, never on
-        // the live page, to compensate.
+        // html2canvas paints ordinary HTML text using its own approximate
+        // font metrics rather than the browser's real ones, which can drift
+        // enough to visibly misalign an icon next to it - only in the
+        // exported image, never live. The single-line detail rows sidestep
+        // that entirely now (DetailRowSvg - see its comment), but the
+        // address line still wraps across 2 lines as plain HTML, so it still
+        // needs this pixel nudge, applied only in the clone used for
+        // capture, never on the live page.
         onclone: (clonedDoc) => {
           clonedDoc.querySelectorAll(".detail-icon").forEach((icon) => {
             icon.style.transform = "translateY(5px)";
@@ -325,11 +378,11 @@ function PublicCardPage() {
   // of its own (it's shown as plain text below instead) - "Map" already
   // covers "open this in Google Maps" when a link is set.
   const quickActions = [
-    card.phone && { key: "call", label: card.phone, bg: "#0284C7", icon: Phone, href: formatPhoneLink(card.phone) },
-    card.email && { key: "email", label: card.email, bg: "#0EA5E9", icon: Mail, href: formatEmailLink(card.email) },
-    card.email2 && { key: "email2", label: card.email2, bg: "#38BDF8", icon: Mail, href: formatEmailLink(card.email2) },
-    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), bg: "#0D9488", icon: Globe, href: card.website, external: true },
-    card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
+    card.phone && { key: "call", label: card.phone, bg: "#0284C7", icon: Phone, iconType: "phone", href: formatPhoneLink(card.phone) },
+    card.email && { key: "email", label: card.email, bg: "#0EA5E9", icon: Mail, iconType: "mail", href: formatEmailLink(card.email) },
+    card.email2 && { key: "email2", label: card.email2, bg: "#38BDF8", icon: Mail, iconType: "mail", href: formatEmailLink(card.email2) },
+    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), bg: "#0D9488", icon: Globe, iconType: "globe", href: card.website, external: true },
+    card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, iconType: "mapPin", href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
 
   // The icon row is one-per-type (e.g. a single mail icon covers both email
@@ -374,6 +427,14 @@ function PublicCardPage() {
                   backgroundPosition: "center",
                 }}
               />
+              {/* A plain white wash, not a CSS filter: html2canvas has zero
+                  support for the filter property (confirmed - it isn't
+                  parsed anywhere in its source), so a brightness() filter
+                  would lighten the live page but be silently dropped from
+                  the exported image. An overlay is just alpha-blended
+                  background color, which html2canvas already handles fine
+                  (the gradient below it relies on the same thing). */}
+              <div className="absolute inset-0 pointer-events-none z-0 bg-white/20" />
               <div
                 className="absolute inset-0 pointer-events-none z-0"
                 style={{
@@ -434,12 +495,6 @@ function PublicCardPage() {
                   </div>
                 )}
               </div>
-              <div
-                className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center"
-                style={{ background: "#2D9B91", border: "3px solid #FFFFFF" }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-              </div>
             </div>
 
             <h1 className="text-lg font-bold text-center mt-3" style={{ color: textColor }}>
@@ -480,15 +535,8 @@ function PublicCardPage() {
                 {/* Detail lines: the actual values, underneath the icon row. */}
                 <div className="flex flex-col gap-1.5">
                   {quickActions.map((action) => (
-                    <a
-                      key={action.key}
-                      href={action.href}
-                      target={action.external ? "_blank" : undefined}
-                      rel={action.external ? "noopener noreferrer" : undefined}
-                      className="flex items-center gap-2"
-                    >
-                      <action.icon className="w-3.5 h-3.5 shrink-0 detail-icon" style={{ color: action.bg }} />
-                      <span className="text-[14px] font-medium text-slate-700 break-all">{action.label}</span>
+                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined}>
+                      <DetailRowSvg iconType={action.iconType} iconColor={action.bg} label={action.label} />
                     </a>
                   ))}
                 </div>
