@@ -226,7 +226,7 @@ function PublicCardPage() {
         // the live page, to compensate.
         onclone: (clonedDoc) => {
           clonedDoc.querySelectorAll(".detail-icon").forEach((icon) => {
-            icon.style.transform = "translateY(3px)";
+            icon.style.transform = "translateY(5px)";
           });
         },
       });
@@ -497,7 +497,7 @@ function PublicCardPage() {
 
             {card.address && (
               <div className="flex items-start gap-2 pt-1.5">
-                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 detail-icon" style={{ color: "#7C3AED" }} />
+                <MapPin className="w-3.5 h-3.5 shrink-0 detail-icon" style={{ color: "#7C3AED" }} />
                 <span className="text-[13px] text-slate-500 leading-snug">{card.address}</span>
               </div>
             )}
