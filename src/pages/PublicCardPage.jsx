@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import html2canvas from "html2canvas";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabase/supabaseClient";
 import { Phone, Mail, Globe, MapPin, Download, Image as ImageIcon } from "lucide-react";
@@ -47,6 +48,7 @@ function PublicCardPage() {
   const { cardId } = useParams();
   const [card, setCard] = useState(null);
   const cardRef = useRef(null);
+  const photoRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lang, setLang] = useState("en");
@@ -171,99 +173,103 @@ function PublicCardPage() {
   const saveCardAsImage = async () => {
     if (!cardRef.current) return;
     try {
-      // html2canvas has hard limitations that patching kept hitting a ceiling
-      // on: no control over image smoothing quality (soft photos), and it
-      // paints text using its own approximate font metrics instead of the
-      // browser's real ones (icon/text drift). This renders the card's
-      // actual DOM inside an SVG <foreignObject> instead, so the real browser
-      // engine lays it out and paints it - correct flexbox, correct image
-      // scaling, no reimplemented layout engine - then rasterizes that at
-      // high resolution. An SVG used as an image source can't load any
-      // external resource, so everything it references (images, CSS) has to
-      // be inlined into the clone first.
-      const clone = cardRef.current.cloneNode(true);
-
-      const toDataUri = async (url) => {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        return await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
+      // Preload every image the capture depends on - background, profile
+      // photo, logo - fully before capture. Only the background was being
+      // preloaded before; the profile photo could still be mid-decode when
+      // html2canvas grabbed it, which is a likely cause of it coming out soft.
+      const preloadImage = (src) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(img);
+          img.src = src;
         });
-      };
+      const [, photoImg] = await Promise.all([
+        preloadImage(backgroundImage),
+        card.photoUrl ? preloadImage(card.photoUrl) : Promise.resolve(null),
+        card.logoUrl ? preloadImage(card.logoUrl) : Promise.resolve(null),
+      ]);
 
-      for (const imgEl of clone.querySelectorAll("img")) {
-        if (imgEl.src && !imgEl.src.startsWith("data:")) {
-          try {
-            imgEl.src = await toDataUri(imgEl.src);
-          } catch (err) {
-            console.error("Failed to inline image for export:", imgEl.src, err);
-          }
-        }
+      // Measured before capture, in CSS px relative to the card - used after
+      // capture to redraw the photo at full quality (see below).
+      const cardRectForPhoto = cardRef.current.getBoundingClientRect();
+      const photoRectForPhoto = photoRef.current?.getBoundingClientRect();
+
+      // Ensure all custom fonts are fully loaded before measuring/rendering text
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
       }
 
-      for (const el of clone.querySelectorAll('[style*="background-image"]')) {
-        const match = el.style.backgroundImage.match(/url\(["']?([^"')]+)["']?\)/);
-        if (match && !match[1].startsWith("data:")) {
-          try {
-            el.style.backgroundImage = `url("${await toDataUri(match[1])}")`;
-          } catch (err) {
-            console.error("Failed to inline background image for export:", match[1], err);
-          }
-        }
-      }
+      // Extra delay to ensure browser has fully painted everything
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Gather all page CSS (Tailwind's compiled output, plus any inline
-      // <style> tags) so the clone's utility classes still apply once
-      // rendered in the isolated SVG image context, which has no access to
-      // the page's own stylesheets otherwise.
-      const cssTexts = [];
-      document.querySelectorAll("style").forEach((el) => cssTexts.push(el.textContent || ""));
-      for (const linkEl of document.querySelectorAll('link[rel="stylesheet"]')) {
-        try {
-          const res = await fetch(linkEl.href);
-          cssTexts.push(await res.text());
-        } catch (err) {
-          console.error("Failed to fetch stylesheet for export:", linkEl.href, err);
-        }
-      }
-
-      const rect = cardRef.current.getBoundingClientRect();
-      const width = Math.ceil(rect.width);
-      const height = Math.ceil(rect.height);
-      const exportScale = 3;
-
-      const cloneHtml = new XMLSerializer().serializeToString(clone);
-      const svgMarkup =
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${width * exportScale}" height="${height * exportScale}" viewBox="0 0 ${width} ${height}">` +
-        `<foreignObject width="100%" height="100%">` +
-        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;">` +
-        `<style>${cssTexts.join("\n")}</style>` +
-        cloneHtml +
-        `</div>` +
-        `</foreignObject>` +
-        `</svg>`;
-
-      const svgUrl = URL.createObjectURL(new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" }));
-      const svgImg = new Image();
-      await new Promise((resolve, reject) => {
-        svgImg.onload = resolve;
-        svgImg.onerror = () => reject(new Error("Failed to render card SVG for export"));
-        svgImg.src = svgUrl;
+      const captureScale = 4;
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        scale: captureScale,
+        backgroundColor: null,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight,
+        // html2canvas measures each element's real position correctly, but it
+        // estimates where to paint TEXT glyphs within that box using its own
+        // font-metrics guess rather than the browser's actual rendering - with
+        // a webfont (Inter/Noto Sans Thai) that estimate can drift, which is
+        // why an icon can look right while the text next to it renders shifted
+        // in the exported image even though live rendering looks fine. This
+        // nudges the icons down in the clone used only for capture, never on
+        // the live page, to compensate.
+        onclone: (clonedDoc) => {
+          clonedDoc.querySelectorAll(".detail-icon").forEach((icon) => {
+            icon.style.transform = "translateY(3px)";
+          });
+        },
       });
 
-      const canvas = document.createElement("canvas");
-      canvas.width = width * exportScale;
-      canvas.height = height * exportScale;
-      const ctx = canvas.getContext("2d");
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(svgImg, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(svgUrl);
+      // html2canvas rasterizes every image itself, using the canvas 2D API's
+      // own (lower-quality-by-default) scaling rather than the browser's own
+      // CSS rendering - it never sets imageSmoothingQuality at all. That's a
+      // real quality gap versus how the photo looks live on the card, most
+      // visible on the largest image (the profile photo). Redraw just that
+      // circle here with explicit high-quality smoothing, replicating
+      // background-size:cover/center, so the exported photo matches what's
+      // actually on the card instead of html2canvas's own softer version.
+      if (photoImg && photoImg.naturalWidth > 0 && photoRectForPhoto) {
+        const ctx = canvas.getContext("2d");
+        const x = (photoRectForPhoto.left - cardRectForPhoto.left) * captureScale;
+        const y = (photoRectForPhoto.top - cardRectForPhoto.top) * captureScale;
+        const w = photoRectForPhoto.width * captureScale;
+        const h = photoRectForPhoto.height * captureScale;
+        if (ctx && w > 0 && h > 0) {
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.beginPath();
+          ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) / 2, 0, Math.PI * 2);
+          ctx.clip();
 
-      const dataUrl = canvas.toDataURL("image/png", 1.0);
+          const boxRatio = w / h;
+          const imgRatio = photoImg.naturalWidth / photoImg.naturalHeight;
+          let sx, sy, sw, sh;
+          if (imgRatio > boxRatio) {
+            sh = photoImg.naturalHeight;
+            sw = sh * boxRatio;
+            sx = (photoImg.naturalWidth - sw) / 2;
+            sy = 0;
+          } else {
+            sw = photoImg.naturalWidth;
+            sh = sw / boxRatio;
+            sx = 0;
+            sy = (photoImg.naturalHeight - sh) / 2;
+          }
+          ctx.drawImage(photoImg, sx, sy, sw, sh, x, y, w, h);
+          ctx.restore();
+        }
+      }
+
+      const dataUrl = canvas.toDataURL("image/png", 0.95);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       // iOS Safari doesn't reliably support the <a download> attribute, so use
       // the native share sheet there. Android downloads directly to Downloads
@@ -349,9 +355,9 @@ function PublicCardPage() {
         >
           {hasBackground && (
             <>
-              {/* A background-image div rather than an <img> with object-cover,
-                  so the "Save Image" export's img -> data-URI inlining step
-                  doesn't need a separate code path for this element. */}
+              {/* A background-image div, not an <img> with object-cover: html2canvas
+                  (used by "Save Card as Image") doesn't support object-fit at all and
+                  would stretch an <img> to fill the box instead of cropping it. */}
               <div
                 className="absolute inset-0 z-0 pointer-events-none"
                 style={{
@@ -404,6 +410,7 @@ function PublicCardPage() {
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
+                    ref={photoRef}
                     role="img"
                     aria-label={displayName}
                     className="w-full h-full"
@@ -472,7 +479,7 @@ function PublicCardPage() {
                       rel={action.external ? "noopener noreferrer" : undefined}
                       className="flex items-center gap-2"
                     >
-                      <action.icon className="w-3.5 h-3.5 shrink-0" style={{ color: action.bg }} />
+                      <action.icon className="w-3.5 h-3.5 shrink-0 detail-icon" style={{ color: action.bg }} />
                       <span className="text-[14px] font-medium text-slate-700 break-all">{action.label}</span>
                     </a>
                   ))}
@@ -482,7 +489,7 @@ function PublicCardPage() {
 
             {card.address && (
               <div className="flex items-start gap-2 pt-1.5">
-                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#7C3AED" }} />
+                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 detail-icon" style={{ color: "#7C3AED" }} />
                 <span className="text-[13px] text-slate-500 leading-snug">{card.address}</span>
               </div>
             )}
