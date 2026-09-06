@@ -10,6 +10,24 @@ import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIco
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
 
+// An email has no spaces for the browser to wrap at naturally, so a long one
+// needs a break hint - <wbr> after "@" specifically, so a two-line email
+// always splits at "localpart@" / "domain" rather than break-all's arbitrary
+// mid-word cut wherever it happens to run out of room.
+function withLineBreakHints(text) {
+  const parts = String(text).split("@");
+  return parts.map((part, i) => (
+    <span key={i}>
+      {part}
+      {i < parts.length - 1 && (
+        <>
+          @<wbr />
+        </>
+      )}
+    </span>
+  ));
+}
+
 function dbRowToCard(row) {
   return {
     id: row.id,
@@ -502,7 +520,7 @@ function PublicCardPage() {
                       className="flex items-start gap-2"
                     >
                       <action.icon className="w-3.5 h-3.5 shrink-0 mt-0.5 detail-icon" style={{ color: action.bg }} />
-                      <span className="text-[13px] font-medium text-slate-700 break-all leading-snug">{action.label}</span>
+                      <span className="text-[13px] font-medium text-slate-700 break-words leading-snug">{withLineBreakHints(action.label)}</span>
                     </a>
                   ))}
                 </div>
