@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { useParams } from "react-router-dom";
 import { supabase } from "../supabase/supabaseClient";
-import { Phone, Mail, Globe, MapPin, Copy, Download, Image as ImageIcon } from "lucide-react";
+import { Phone, Mail, Globe, MapPin, Download, Image as ImageIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { createVCard } from "../utils/createVCard";
 import { formatPhoneLink, formatEmailLink } from "../utils/formatLinks";
@@ -48,6 +48,7 @@ function PublicCardPage() {
   const { cardId } = useParams();
   const [card, setCard] = useState(null);
   const cardRef = useRef(null);
+  const photoRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [lang, setLang] = useState("en");
@@ -153,7 +154,7 @@ function PublicCardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F4F2ED]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F7EFE7]">
         <p className="text-muted">Loading...</p>
       </div>
     );
@@ -161,7 +162,7 @@ function PublicCardPage() {
 
   if (notFound || !card) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F4F2ED]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F7EFE7]">
         <p className="text-muted">This business card could not be found.</p>
       </div>
     );
@@ -180,13 +181,20 @@ function PublicCardPage() {
         new Promise((resolve) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
-          img.onload = resolve;
-          img.onerror = resolve;
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(img);
           img.src = src;
         });
-      await Promise.all(
-        [backgroundImage, card.photoUrl, card.logoUrl].filter(Boolean).map(preloadImage)
-      );
+      const [, photoImg] = await Promise.all([
+        preloadImage(backgroundImage),
+        card.photoUrl ? preloadImage(card.photoUrl) : Promise.resolve(null),
+        card.logoUrl ? preloadImage(card.logoUrl) : Promise.resolve(null),
+      ]);
+
+      // Measured before capture, in CSS px relative to the card - used after
+      // capture to redraw the photo at full quality (see below).
+      const cardRectForPhoto = cardRef.current.getBoundingClientRect();
+      const photoRectForPhoto = photoRef.current?.getBoundingClientRect();
 
       // Ensure all custom fonts are fully loaded before measuring/rendering text
       if (document.fonts && document.fonts.ready) {
@@ -196,9 +204,10 @@ function PublicCardPage() {
       // Extra delay to ensure browser has fully painted everything
       await new Promise((resolve) => setTimeout(resolve, 300));
 
+      const captureScale = 4;
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
-        scale: 4,
+        scale: captureScale,
         backgroundColor: null,
         scrollX: 0,
         scrollY: -window.scrollY,
@@ -218,6 +227,48 @@ function PublicCardPage() {
           });
         },
       });
+
+      // html2canvas rasterizes every image itself, using the canvas 2D API's
+      // own (lower-quality-by-default) scaling rather than the browser's own
+      // CSS rendering - it never sets imageSmoothingQuality at all. That's a
+      // real quality gap versus how the photo looks live on the card, most
+      // visible on the largest image (the profile photo). Redraw just that
+      // circle here with explicit high-quality smoothing, replicating
+      // background-size:cover/center, so the exported photo matches what's
+      // actually on the card instead of html2canvas's own softer version.
+      if (photoImg && photoImg.naturalWidth > 0 && photoRectForPhoto) {
+        const ctx = canvas.getContext("2d");
+        const x = (photoRectForPhoto.left - cardRectForPhoto.left) * captureScale;
+        const y = (photoRectForPhoto.top - cardRectForPhoto.top) * captureScale;
+        const w = photoRectForPhoto.width * captureScale;
+        const h = photoRectForPhoto.height * captureScale;
+        if (ctx && w > 0 && h > 0) {
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.beginPath();
+          ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) / 2, 0, Math.PI * 2);
+          ctx.clip();
+
+          const boxRatio = w / h;
+          const imgRatio = photoImg.naturalWidth / photoImg.naturalHeight;
+          let sx, sy, sw, sh;
+          if (imgRatio > boxRatio) {
+            sh = photoImg.naturalHeight;
+            sw = sh * boxRatio;
+            sx = (photoImg.naturalWidth - sw) / 2;
+            sy = 0;
+          } else {
+            sw = photoImg.naturalWidth;
+            sh = sw / boxRatio;
+            sx = 0;
+            sy = (photoImg.naturalHeight - sh) / 2;
+          }
+          ctx.drawImage(photoImg, sx, sy, sw, sh, x, y, w, h);
+          ctx.restore();
+        }
+      }
+
       const dataUrl = canvas.toDataURL("image/png", 0.95);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       // iOS Safari doesn't reliably support the <a download> attribute, so use
@@ -292,7 +343,7 @@ function PublicCardPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen py-10 px-4" style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}>
+    <div className="min-h-screen py-10 px-4" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
       <div className="max-w-[360px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
@@ -315,7 +366,12 @@ function PublicCardPage() {
                   backgroundPosition: "center",
                 }}
               />
-              <div className="absolute inset-0 bg-black/12 pointer-events-none z-0" />
+              <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{
+                  background: "linear-gradient(180deg, rgba(233,111,61,0.28) 0%, rgba(255,255,255,0.05) 46%, rgba(23,32,51,0.12) 100%)",
+                }}
+              />
             </>
           )}
           {/* Simple header row: logo left, language toggle right. Same flex
@@ -350,10 +406,11 @@ function PublicCardPage() {
           {/* Photo, name, title, company - sits directly on the background
               image/wallpaper, so text color adapts to it (isLightBg). */}
           <div className="relative flex flex-col items-center px-5 pt-5 pb-7">
-            <div className="w-[161px] h-[161px] rounded-full bg-white p-[3px] relative">
+            <div className="w-[161px] h-[161px] rounded-full bg-[#E96F3D] p-[4px] relative shadow-[0_12px_30px_rgba(23,32,51,0.22)]">
               <div className="w-full h-full rounded-full overflow-hidden bg-[#C7CDD6]">
                 {card.photoUrl ? (
                   <div
+                    ref={photoRef}
                     role="img"
                     aria-label={displayName}
                     className="w-full h-full"
@@ -371,7 +428,7 @@ function PublicCardPage() {
               </div>
               <div
                 className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center"
-                style={{ background: "#0EA5E9", border: "3px solid #FFFFFF" }}
+                style={{ background: "#2D9B91", border: "3px solid #FFFFFF" }}
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
               </div>
