@@ -43,24 +43,18 @@ const DETAIL_ICON_PATHS = {
 };
 
 // Icon + label as one inline SVG, not separate HTML elements - see
-// DETAIL_ICON_PATHS above for why. No viewBox (so 1 unit = 1 css px, no
-// scale-driven distortion). The width is a genuinely wide fixed box, not a
-// small one relying on overflow:visible to let text spill out - html2canvas
-// rasterizes this into a STANDALONE image with its width/height attributes
-// forced to match the element's own declared size, and a standalone SVG
-// used as an image resource clips to that canvas regardless of
-// overflow:visible (that only lets content spill for an SVG embedded live
-// in a page, not one rasterized on its own) - the first version of this fix
-// silently clipped every row's text off entirely because of exactly that.
-// 280px comfortably covers the panel's ~296px usable width for real
-// phone/email/domain lengths.
-// Single-line only: no <foreignObject>-based wrapping here, deliberately -
-// that's the exact mechanism a full SVG-export attempt showed can break
-// "Save Image" outright on Safari, so it's not worth reintroducing even
-// scoped to one row. The address line (which does wrap) stays plain HTML.
+// DETAIL_ICON_PATHS above for why. A fixed pixel width overflowed a longer
+// email on a narrower phone (a fixed number can never fit every device and
+// every real value), so width is now 100% of the row - the actual available
+// space - with a matching viewBox so 1 viewBox unit stays ~1 css px on a
+// typical phone (no meaningful icon/text size distortion) while genuinely
+// adapting to whatever width the container really has. Height stays a fixed
+// 20px (not %) with preserveAspectRatio="none", since only the width should
+// track the container - explicit overflow:hidden is the backstop for
+// anything still too long to fit (clipped, not spilling past the card edge).
 function DetailRowSvg({ iconType, iconColor, label }) {
   return (
-    <svg width="280" height="20" style={{ display: "block" }}>
+    <svg width="100%" height="20" viewBox="0 0 300 20" preserveAspectRatio="none" style={{ display: "block", overflow: "hidden" }}>
       <g transform="translate(1,1) scale(0.583)" stroke={iconColor} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         {DETAIL_ICON_PATHS[iconType]}
       </g>
@@ -418,8 +412,8 @@ function PublicCardPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen py-10 px-4 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
-      <div className="w-full max-w-[420px] mx-auto">
+    <div className="min-h-screen py-10 px-2 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
+      <div className="w-full max-w-[460px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
             rounded, shadowed container with no gap between them. */}
@@ -539,7 +533,7 @@ function PublicCardPage() {
                 {/* Detail lines: the actual values, underneath the icon row. */}
                 <div className="flex flex-col gap-1.5">
                   {quickActions.map((action) => (
-                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined}>
+                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined} className="block w-full">
                       <DetailRowSvg iconType={action.iconType} iconColor={action.bg} label={action.label} />
                     </a>
                   ))}
