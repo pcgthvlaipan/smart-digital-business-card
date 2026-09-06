@@ -46,7 +46,7 @@ function LoginPage() {
         style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 55%, #0A3578 100%)" }}
       >
         <div className="flex items-center gap-2.5 mb-14">
-          <svg width="38" height="38" viewBox="0 0 100 100" className="shrink-0">
+          <svg width="56" height="56" viewBox="0 0 100 100" className="shrink-0">
             <rect x="0" y="0" width="100" height="100" rx="22" fill="#FFFFFF" />
             <g transform="rotate(-8 46 54)">
               <rect x="16" y="36" width="58" height="38" rx="7" fill="#0B3D91" />
@@ -55,7 +55,7 @@ function LoginPage() {
             <path d="M 84 0 A 16 16 0 0 1 100 16" stroke="#F97316" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.95" />
             <path d="M 73 0 A 27 27 0 0 1 100 27" stroke="#F97316" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.7" />
           </svg>
-          <span className="font-bold text-lg tracking-tight">Smart Digital Card</span>
+          <span className="font-bold text-xl tracking-tight">Smart Digital Card</span>
         </div>
         <h1 className="text-4xl font-bold mb-4">Welcome back</h1>
         <p className="text-lg text-white/70 max-w-md">
