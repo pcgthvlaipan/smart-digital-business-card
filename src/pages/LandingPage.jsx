@@ -1,7 +1,4 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, query, limit, getDocs } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
 import {
@@ -13,39 +10,40 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const fallbackCard = {
-  fullName: "Jane Doe",
-  jobTitle: "Sales Director",
+// A fictional sample, always shown as-is - this is the public, logged-out
+// landing page, so it must never pull a real user's card (name, phone,
+// email...) out of the database just to have something to preview.
+// A raw (snake_case) shape, same as a real business_cards row: CardPreview
+// feeds it straight through the same dbRowToCard mapper a real row goes
+// through, so this has to match that shape or every field renders blank.
+const sampleCard = {
+  id: "sample",
+  full_name: "Jane Doe",
+  job_title: "Sales Director",
   company: "Your Company",
   bio: "Helping clients grow, one connection at a time.",
-  photoUrl: "",
+  phone: "+66812345678",
+  email: "jane@yourcompany.com",
 };
 
 function LandingPage() {
-  const [previewCard, setPreviewCard] = useState(fallbackCard);
-
-  useEffect(() => {
-    const fetchSampleCard = async () => {
-      try {
-        const q = query(collection(db, "businessCards"), limit(1));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          setPreviewCard({ id: snap.docs[0].id, ...snap.docs[0].data() });
-        }
-      } catch (err) {
-        console.error("Could not load sample card:", err);
-      }
-    };
-    fetchSampleCard();
-  }, []);
-
   return (
     <div className="landing-page min-h-screen bg-surface">
       {/* Nav */}
       <nav className="landing-nav">
         <div className="landing-shell landing-nav-inner">
           <Link to="/" className="brand-lockup" aria-label="Smart Digital Card home">
-            <span className="brand-mark">S</span>
+            <span className="brand-mark">
+              <svg viewBox="0 0 100 100" aria-hidden="true">
+                <rect width="100" height="100" rx="22" fill="#0B3D91" />
+                <g transform="rotate(-8 46 54)">
+                  <rect x="16" y="36" width="58" height="38" rx="7" fill="#FFFFFF" />
+                  <rect x="16" y="57" width="58" height="9" rx="3" fill="#F97316" />
+                </g>
+                <path d="M 84 0 A 16 16 0 0 1 100 16" stroke="#F97316" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.95" />
+                <path d="M 73 0 A 27 27 0 0 1 100 27" stroke="#F97316" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.7" />
+              </svg>
+            </span>
             <span>
               <strong>Smart Digital</strong>
               <small>Business Card</small>
@@ -89,7 +87,7 @@ function LandingPage() {
 
           <div className="hero-card-stage" aria-label="Example digital business card preview">
             <div className="stage-note stage-note-top"><Check size={14} /> One link. Every detail.</div>
-            <div className="stage-card"><CardPreview card={previewCard} /></div>
+            <div className="stage-card"><CardPreview card={sampleCard} /></div>
             <div className="stage-note stage-note-bottom"><QrCode size={16} /> Scan, save, connect</div>
           </div>
         </section>
