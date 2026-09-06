@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Mail } from "lucide-react";
 import { supabase } from "../supabase/supabaseClient";
 import { useAuth } from "../firebase/AuthContextValue";
 import DashboardLayout from "../components/DashboardLayout";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
+import { LineIcon } from "../components/icons/BrandIcons";
 
 function DashboardPage() {
   const { user, loading } = useAuth();
@@ -49,6 +51,11 @@ function DashboardPage() {
     navigator.clipboard.writeText(publicUrl);
     alert("Link copied to clipboard!");
   };
+
+  const lineShareHref = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(publicUrl)}`;
+  const emailShareHref = `mailto:?subject=${encodeURIComponent(
+    "My digital business card"
+  )}&body=${encodeURIComponent(`Here's my digital business card: ${publicUrl}`)}`;
 
   if (loading || fetching) {
     return (
@@ -103,6 +110,27 @@ function DashboardPage() {
               >
                 Preview Public Page
               </Button>
+
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <a
+                  href={lineShareHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 text-sm font-semibold text-white py-2.5 rounded-full transition-opacity hover:opacity-90"
+                  style={{ background: "#06C755" }}
+                >
+                  <LineIcon className="w-4 h-4 fill-white" />
+                  Share via LINE
+                </a>
+                <a
+                  href={emailShareHref}
+                  className="flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-full border-2 hover:bg-[#F0F5FF] transition-colors"
+                  style={{ borderColor: "#9DB8E8", color: "#0B3D91" }}
+                >
+                  <Mail className="w-4 h-4" />
+                  Share via Email
+                </a>
+              </div>
             </div>
           </div>
         </div>
