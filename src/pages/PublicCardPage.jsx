@@ -10,62 +10,6 @@ import { WhatsAppIcon, LineIcon, WeChatIcon } from "../components/icons/BrandIco
 import pcgLogo from "../assets/PCGlogo.png";
 import defaultWallpaper from "../assets/wall2.png";
 
-// Raw path data for the detail-row icons (copied from lucide-react's own
-// source), used to build a single combined icon+text <svg> per row. This
-// isn't cosmetic: html2canvas rasterizes a standalone <svg> by converting it
-// to an image and letting the real browser render it, rather than painting
-// its text itself - which is what fixes the icon/text drift, since
-// html2canvas paints ordinary HTML text using its own approximate font
-// metrics instead of the browser's real ones.
-const DETAIL_ICON_PATHS = {
-  phone: (
-    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
-  ),
-  mail: (
-    <>
-      <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-    </>
-  ),
-  globe: (
-    <>
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-      <path d="M2 12h20" />
-    </>
-  ),
-  mapPin: (
-    <>
-      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-      <circle cx="12" cy="10" r="3" />
-    </>
-  ),
-};
-
-// Icon + label as one inline SVG, not separate HTML elements - see
-// DETAIL_ICON_PATHS above for why. Tried a viewBox + preserveAspectRatio
-//="none" so width could track the container - that scales X and Y
-// independently, and since the row's real width almost never matches the
-// reference exactly, it visibly squished/stretched every glyph horizontally
-// relative to its own height (distorted text is worse than the overflow it
-// was meant to fix). Back to no viewBox (1 unit = 1 css px, always
-// undistorted, whatever the actual width is) at a generous fixed width, with
-// the clipping handled by the plain HTML wrapper's overflow-hidden instead
-// of any scaling - so a rare very-long value gets truncated, never stretched
-// or spilling past the card edge.
-function DetailRowSvg({ iconType, iconColor, label }) {
-  return (
-    <svg width="320" height="20" style={{ display: "block" }}>
-      <g transform="translate(1,1) scale(0.583)" stroke={iconColor} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        {DETAIL_ICON_PATHS[iconType]}
-      </g>
-      <text x="24" y="15" fontSize="13" fontWeight="500" fill="#334155" fontFamily="Inter, 'Noto Sans Thai', system-ui, sans-serif">
-        {label}
-      </text>
-    </svg>
-  );
-}
-
 function dbRowToCard(row) {
   return {
     id: row.id,
@@ -229,16 +173,16 @@ function PublicCardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7EFE7]">
-        <p className="text-muted">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}>
+        <p className="text-white/70">Loading...</p>
       </div>
     );
   }
 
   if (notFound || !card) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7EFE7]">
-        <p className="text-muted">This business card could not be found.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}>
+        <p className="text-white/70">This business card could not be found.</p>
       </div>
     );
   }
@@ -400,11 +344,11 @@ function PublicCardPage() {
   // of its own (it's shown as plain text below instead) - "Map" already
   // covers "open this in Google Maps" when a link is set.
   const quickActions = [
-    card.phone && { key: "call", label: card.phone, bg: "#0284C7", icon: Phone, iconType: "phone", href: formatPhoneLink(card.phone) },
-    card.email && { key: "email", label: card.email, bg: "#0EA5E9", icon: Mail, iconType: "mail", href: formatEmailLink(card.email) },
-    card.email2 && { key: "email2", label: card.email2, bg: "#38BDF8", icon: Mail, iconType: "mail", href: formatEmailLink(card.email2) },
-    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), bg: "#0D9488", icon: Globe, iconType: "globe", href: card.website, external: true },
-    card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, iconType: "mapPin", href: card.googleMapsUrl, external: true },
+    card.phone && { key: "call", label: card.phone, bg: "#0284C7", icon: Phone, href: formatPhoneLink(card.phone) },
+    card.email && { key: "email", label: card.email, bg: "#0EA5E9", icon: Mail, href: formatEmailLink(card.email) },
+    card.email2 && { key: "email2", label: card.email2, bg: "#38BDF8", icon: Mail, href: formatEmailLink(card.email2) },
+    card.website && { key: "website", label: card.website.replace(/^https?:\/\//, ""), bg: "#0D9488", icon: Globe, href: card.website, external: true },
+    card.googleMapsUrl && { key: "map", label: "View on Google Maps", bg: "#7C3AED", icon: MapPin, href: card.googleMapsUrl, external: true },
   ].filter(Boolean);
 
   // The icon row is one-per-type (e.g. a single mail icon covers both email
@@ -426,7 +370,7 @@ function PublicCardPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen py-10 px-4 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
+    <div className="min-h-screen py-10 px-4 overflow-x-hidden" style={{ background: "linear-gradient(160deg, #0B3D91 0%, #123F8C 60%, #0A3578 100%)" }}>
       <div className="w-full max-w-[380px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
@@ -544,11 +488,21 @@ function PublicCardPage() {
                   ))}
                 </div>
 
-                {/* Detail lines: the actual values, underneath the icon row. */}
+                {/* Detail lines: the actual values, underneath the icon row.
+                    Plain HTML that wraps rather than a fixed-width SVG - a
+                    long email needs to always be fully visible, which
+                    matters more than the export's icon/text alignment. */}
                 <div className="flex flex-col gap-1.5">
                   {quickActions.map((action) => (
-                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined} className="block w-full overflow-hidden">
-                      <DetailRowSvg iconType={action.iconType} iconColor={action.bg} label={action.label} />
+                    <a
+                      key={action.key}
+                      href={action.href}
+                      target={action.external ? "_blank" : undefined}
+                      rel={action.external ? "noopener noreferrer" : undefined}
+                      className="flex items-start gap-2"
+                    >
+                      <action.icon className="w-3.5 h-3.5 shrink-0 mt-0.5 detail-icon" style={{ color: action.bg }} />
+                      <span className="text-[13px] font-medium text-slate-700 break-all leading-snug">{action.label}</span>
                     </a>
                   ))}
                 </div>
