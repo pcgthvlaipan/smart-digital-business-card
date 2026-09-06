@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../supabase/supabaseClient";
-import { useAuth } from "../firebase/AuthContext";
+import { useAuth } from "../firebase/AuthContextValue";
 import DashboardLayout from "../components/DashboardLayout";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
@@ -214,9 +214,11 @@ function CardEditorPage() {
     try {
       let photoUrl = form.photoUrl;
       if (photoFile) {
-        // 300px/0.7 was too soft for a 158px circle on a retina phone screen
-        // (the photo needs 2-3x that many source pixels to look sharp there).
-        const compressedBlob = await compressImage(photoFile, 640, 0.85);
+        // The photo now displays up to 161px and the "Save Image" export
+        // captures at 4x scale (needs ~644px source pixels just to avoid
+        // upscaling there), plus retina phone screens on top of that -
+        // 900px/0.9 gives real headroom instead of just barely covering it.
+        const compressedBlob = await compressImage(photoFile, 900, 0.9);
         photoUrl = await uploadToBucket("avatars", user.id, compressedBlob);
       }
 
