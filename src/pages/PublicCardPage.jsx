@@ -209,8 +209,14 @@ function PublicCardPage() {
   }, [cardId]);
 
   const copyWeChat = () => {
+    // WeChat has no public "add friend by ID" link the way LINE does (a
+    // deliberate anti-spam restriction on their end, not something fixable
+    // from a website) - copying the ID and opening the app directly is the
+    // best available flow, so the message needs to say what to do next
+    // rather than leaving it looking like nothing happened.
     navigator.clipboard.writeText(card.wechatId);
-    alert("WeChat ID copied!");
+    window.location.href = "weixin://";
+    alert(`WeChat ID copied: ${card.wechatId}\n\nOpen WeChat → Add Friends → paste to add.`);
   };
 
   if (loading) {
@@ -413,7 +419,7 @@ function PublicCardPage() {
 
   return (
     <div className="min-h-screen py-10 px-4" style={{ background: "linear-gradient(160deg, #F7EFE7 0%, #EAF4F0 52%, #FFF8F2 100%)" }}>
-      <div className="max-w-[360px] mx-auto">
+      <div className="w-full max-w-[480px] mx-auto">
         {/* One card section, start to finish: the card face (ref'd for
             "Save as Image") and the actions below it share this same
             rounded, shadowed container with no gap between them. */}
