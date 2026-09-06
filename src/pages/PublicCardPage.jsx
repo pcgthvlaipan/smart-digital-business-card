@@ -179,7 +179,8 @@ function PublicCardPage() {
   }, [card?.backgroundUrl]);
 
   useEffect(() => {
-    const fetchCard = async () => {
+    const fetchCard = async ({ showLoading } = {}) => {
+      if (showLoading) setLoading(true);
       try {
         const { data, error } = await supabase
           .from("business_cards")
@@ -199,7 +200,19 @@ function PublicCardPage() {
         setLoading(false);
       }
     };
-    fetchCard();
+    fetchCard({ showLoading: true });
+
+    // If this card was opened, then the owner updated their photo/details
+    // elsewhere (the editor, another tab) and came back to this same
+    // already-open tab without a full reload, nothing would otherwise tell
+    // it to notice - React state only ever reflects whatever was fetched
+    // once on mount. Re-fetching whenever the tab becomes visible again
+    // means "Save Contact" and "Save Image" always use current data.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") fetchCard({ showLoading: false });
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [cardId]);
 
   const copyWeChat = () => {
