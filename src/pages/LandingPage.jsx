@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import Button from "../components/Button";
 import CardPreview from "../components/CardPreview";
+import sampleAvatar from "../assets/sample-avatar.png";
 import {
   ArrowUpRight,
   Check,
+  Mail,
   QrCode,
   Share2,
   Smartphone,
@@ -24,9 +26,16 @@ const sampleCard = {
   bio: "Helping clients grow, one connection at a time.",
   phone: "+66812345678",
   email: "jane@yourcompany.com",
+  photo_url: sampleAvatar,
 };
 
 function LandingPage() {
+  const shareEmailHref = `mailto:?subject=${encodeURIComponent(
+    "Check out Smart Digital Card"
+  )}&body=${encodeURIComponent(
+    `I wanted to share this digital business card app with you: ${window.location.origin}`
+  )}`;
+
   return (
     <div className="landing-page min-h-screen bg-surface">
       {/* Nav */}
@@ -51,6 +60,9 @@ function LandingPage() {
           </Link>
           <div className="landing-nav-actions">
             <span className="nav-status"><span /> Always ready to share</span>
+            <a href={shareEmailHref} className="nav-share" aria-label="Share via email" title="Share via email">
+              <Mail size={18} aria-hidden="true" />
+            </a>
             <Link to="/login" className="nav-login">Sign in</Link>
             <Link to="/register" className="nav-cta">
               Get started <ArrowUpRight size={16} aria-hidden="true" />
