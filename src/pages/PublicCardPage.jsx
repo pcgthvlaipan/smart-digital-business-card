@@ -43,18 +43,19 @@ const DETAIL_ICON_PATHS = {
 };
 
 // Icon + label as one inline SVG, not separate HTML elements - see
-// DETAIL_ICON_PATHS above for why. A fixed pixel width overflowed a longer
-// email on a narrower phone (a fixed number can never fit every device and
-// every real value), so width is now 100% of the row - the actual available
-// space - with a matching viewBox so 1 viewBox unit stays ~1 css px on a
-// typical phone (no meaningful icon/text size distortion) while genuinely
-// adapting to whatever width the container really has. Height stays a fixed
-// 20px (not %) with preserveAspectRatio="none", since only the width should
-// track the container - explicit overflow:hidden is the backstop for
-// anything still too long to fit (clipped, not spilling past the card edge).
+// DETAIL_ICON_PATHS above for why. Tried a viewBox + preserveAspectRatio
+//="none" so width could track the container - that scales X and Y
+// independently, and since the row's real width almost never matches the
+// reference exactly, it visibly squished/stretched every glyph horizontally
+// relative to its own height (distorted text is worse than the overflow it
+// was meant to fix). Back to no viewBox (1 unit = 1 css px, always
+// undistorted, whatever the actual width is) at a generous fixed width, with
+// the clipping handled by the plain HTML wrapper's overflow-hidden instead
+// of any scaling - so a rare very-long value gets truncated, never stretched
+// or spilling past the card edge.
 function DetailRowSvg({ iconType, iconColor, label }) {
   return (
-    <svg width="100%" height="20" viewBox="0 0 300 20" preserveAspectRatio="none" style={{ display: "block", overflow: "hidden" }}>
+    <svg width="320" height="20" style={{ display: "block" }}>
       <g transform="translate(1,1) scale(0.583)" stroke={iconColor} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         {DETAIL_ICON_PATHS[iconType]}
       </g>
@@ -546,7 +547,7 @@ function PublicCardPage() {
                 {/* Detail lines: the actual values, underneath the icon row. */}
                 <div className="flex flex-col gap-1.5">
                   {quickActions.map((action) => (
-                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined} className="block w-full">
+                    <a key={action.key} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noopener noreferrer" : undefined} className="block w-full overflow-hidden">
                       <DetailRowSvg iconType={action.iconType} iconColor={action.bg} label={action.label} />
                     </a>
                   ))}
