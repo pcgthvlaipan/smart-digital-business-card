@@ -8,6 +8,8 @@ function Button({ children, variant = "primary", className = "", ...props }) {
     brand: "bg-[#0B3D91] text-white hover:bg-[#0A3578] shadow-card hover:shadow-cardHover",
     accent: "bg-accent text-white hover:bg-accent-dark shadow-card hover:shadow-cardHover",
     outline: "border border-border text-navy bg-white hover:bg-surface",
+    // Outline variant matching the "brand" dark-blue theme.
+    outlineBrand: "border-2 border-[#9DB8E8] text-[#0B3D91] bg-white hover:bg-[#F0F5FF]",
     ghost: "text-navy hover:bg-surface",
   };
 

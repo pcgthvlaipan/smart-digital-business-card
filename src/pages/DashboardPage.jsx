@@ -61,9 +61,9 @@ function DashboardPage() {
   return (
     <DashboardLayout user={user} onLogout={handleLogout}>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-navy">My Business Card</h1>
+        <h1 className="text-2xl font-bold text-[#0B3D91]">My Business Card</h1>
         {card && (
-          <Button variant="primary" onClick={() => navigate(`/editor/${card.id}`)}>
+          <Button variant="brand" onClick={() => navigate(`/editor/${card.id}`)}>
             Edit Card
           </Button>
         )}
@@ -71,11 +71,11 @@ function DashboardPage() {
 
       {!card ? (
         <div className="bg-white rounded-xl2 shadow-card p-10 text-center max-w-md mx-auto">
-          <h2 className="text-lg font-semibold text-navy mb-2">No card yet</h2>
+          <h2 className="text-lg font-semibold text-[#0B3D91] mb-2">No card yet</h2>
           <p className="text-sm text-muted mb-6">
             Create your digital business card to start sharing your profile.
           </p>
-          <Button variant="accent" onClick={() => navigate("/editor")}>
+          <Button variant="brand" onClick={() => navigate("/editor")}>
             Create My Card
           </Button>
         </div>
@@ -85,19 +85,19 @@ function DashboardPage() {
 
           <div className="flex flex-col gap-4">
             <div className="bg-white rounded-xl2 shadow-card p-6">
-              <h3 className="font-semibold text-navy mb-3">Share your card</h3>
+              <h3 className="font-semibold text-[#0B3D91] mb-3">Share your card</h3>
               <div className="flex items-center gap-2 mb-4">
                 <input
                   readOnly
                   value={publicUrl}
-                  className="flex-1 text-sm px-3 py-2 rounded-lg border border-border bg-surface text-ink"
+                  className="flex-1 text-sm px-3 py-2 rounded-lg border-2 border-[#9DB8E8] bg-white text-ink"
                 />
-                <Button variant="outline" onClick={copyLink}>
+                <Button variant="outlineBrand" onClick={copyLink}>
                   Copy
                 </Button>
               </div>
               <Button
-                variant="ghost"
+                variant="outlineBrand"
                 className="w-full"
                 onClick={() => navigate(`/card/${card.id}`)}
               >
