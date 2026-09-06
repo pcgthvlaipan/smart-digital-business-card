@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import PhotoCropModal from "./PhotoCropModal";
 
 function ImageUploader({ currentImageUrl, onFileSelect, shape = "circle", label = "Upload Photo" }) {
   const [preview, setPreview] = useState(currentImageUrl || null);
   const [hasLocalFile, setHasLocalFile] = useState(false);
   const [lastSyncedUrl, setLastSyncedUrl] = useState(currentImageUrl);
+  const [pendingFile, setPendingFile] = useState(null);
+  const inputRef = useRef(null);
 
   // currentImageUrl starts empty and only arrives after the editor's async
   // fetch of the existing card resolves - useState's initial value alone
@@ -19,9 +22,32 @@ function ImageUploader({ currentImageUrl, onFileSelect, shape = "circle", label 
   const handleChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (shape === "circle") {
+      // The profile photo goes through the crop modal so the person can
+      // choose exactly what sits inside the round frame, rather than
+      // whatever a plain center-crop happens to land on.
+      setPendingFile(file);
+      return;
+    }
     setHasLocalFile(true);
     setPreview(URL.createObjectURL(file));
     onFileSelect?.(file);
+  };
+
+  const handleCropConfirm = (blob) => {
+    setHasLocalFile(true);
+    setPreview(URL.createObjectURL(blob));
+    onFileSelect?.(blob);
+    setPendingFile(null);
+    // Without this, re-picking the exact same file later (e.g. to redo the
+    // crop) wouldn't fire onChange at all - the input's value never
+    // actually changed as far as the browser's concerned.
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handleCropCancel = () => {
+    setPendingFile(null);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const frameClassName =
@@ -48,8 +74,12 @@ function ImageUploader({ currentImageUrl, onFileSelect, shape = "circle", label 
       </div>
       <label className="text-sm font-medium text-navy hover:underline cursor-pointer">
         {label}
-        <input type="file" accept="image/*" onChange={handleChange} className="hidden" />
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleChange} className="hidden" />
       </label>
+
+      {pendingFile && (
+        <PhotoCropModal file={pendingFile} onConfirm={handleCropConfirm} onCancel={handleCropCancel} />
+      )}
     </div>
   );
 }
