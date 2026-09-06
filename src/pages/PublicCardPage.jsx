@@ -44,15 +44,23 @@ const DETAIL_ICON_PATHS = {
 
 // Icon + label as one inline SVG, not separate HTML elements - see
 // DETAIL_ICON_PATHS above for why. No viewBox (so 1 unit = 1 css px, no
-// scale-driven distortion) and overflow:visible (so text isn't clipped to
-// the nominal width - nothing sits to its right within these rows).
+// scale-driven distortion). The width is a genuinely wide fixed box, not a
+// small one relying on overflow:visible to let text spill out - html2canvas
+// rasterizes this into a STANDALONE image with its width/height attributes
+// forced to match the element's own declared size, and a standalone SVG
+// used as an image resource clips to that canvas regardless of
+// overflow:visible (that only lets content spill for an SVG embedded live
+// in a page, not one rasterized on its own) - the first version of this fix
+// silently clipped every row's text off entirely because of exactly that.
+// 280px comfortably covers the panel's ~296px usable width for real
+// phone/email/domain lengths.
 // Single-line only: no <foreignObject>-based wrapping here, deliberately -
 // that's the exact mechanism a full SVG-export attempt showed can break
 // "Save Image" outright on Safari, so it's not worth reintroducing even
 // scoped to one row. The address line (which does wrap) stays plain HTML.
 function DetailRowSvg({ iconType, iconColor, label }) {
   return (
-    <svg width="20" height="20" style={{ overflow: "visible", display: "block" }}>
+    <svg width="280" height="20" style={{ display: "block" }}>
       <g transform="translate(1,1) scale(0.583)" stroke={iconColor} strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round">
         {DETAIL_ICON_PATHS[iconType]}
       </g>
